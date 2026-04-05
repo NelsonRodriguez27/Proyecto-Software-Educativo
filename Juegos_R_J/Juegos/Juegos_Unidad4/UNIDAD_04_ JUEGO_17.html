@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juego 17 - Completa la tabla</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../../imagenes/GaussEstudia.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gauss-orange:#C25C26; --gauss-brown:#72270E; --gauss-cream:#E1CA9E;
+      --gauss-yellow:#E2BC33; --gauss-green:#73A21D; --gauss-gray:#828C90;
+      --gauss-blue:#4a67d6; --gauss-purple:#9b59d6; --bg-main:#fff9f1;
+      --white:#ffffff; --ok:#73A21D; --error:#d94d3f; --info:#4a67d6;
+      --shadow:0 12px 30px rgba(114,39,14,0.16); --radius-xl:28px;
+      --radius-lg:22px; --radius-md:18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;min-height:100%;font-family:'Fredoka',sans-serif;
+      background:radial-gradient(circle at top left,rgba(226,188,51,.18),transparent 22%),
+      radial-gradient(circle at 85% 18%,rgba(115,162,29,.18),transparent 18%),
+      linear-gradient(135deg,#fffaf3 0%,#fff3da 100%);
+      color:var(--gauss-brown);overflow-x:hidden;}
+    body{padding:16px;}
+    .app{max-width:1200px;margin:0 auto;position:relative;z-index:2;}
+    .screen{display:none;animation:fadeIn .35s ease;}
+    .screen.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+      border:2px solid rgba(255,255,255,.8);border-radius:var(--radius-xl);box-shadow:var(--shadow);}
+    
+    /* WELCOME */
+    .welcome{min-height:calc(100vh - 32px);display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;}
+    .welcome-left{padding:34px;}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;
+      background:linear-gradient(135deg,var(--gauss-yellow),#f0d66f);color:var(--gauss-brown);
+      font-weight:700;margin-bottom:18px;box-shadow:0 8px 20px rgba(226,188,51,.25);animation:pulseChip 2.5s infinite;}
+    @keyframes pulseChip{0%{box-shadow:0 0 0 0 rgba(226,188,51,0.4)}70%{box-shadow:0 0 0 10px rgba(226,188,51,0)}100%{box-shadow:0 0 0 0 rgba(226,188,51,0)}}
+    .title{font-size:clamp(2.1rem,5vw,4.2rem);line-height:1.02;color:var(--gauss-brown);margin-bottom:12px;}
+    .subtitle{font-size:clamp(1rem,2vw,1.3rem);color:#7d4a30;line-height:1.5;margin-bottom:18px;}
+    
+    /* GAUSS CHAT */
+    .gauss-chat{background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;
+      border-radius:22px;overflow:hidden;max-width:640px;box-shadow:0 8px 20px rgba(114,39,14,0.08);margin-bottom:6px;}
+    .gauss-chat-header{display:flex;align-items:center;gap:8px;padding:8px 16px;
+      background:linear-gradient(145deg,#f6b243,#ef8f1e);color:white;font-weight:700;font-size:.9rem;}
+    .dot-live{width:9px;height:9px;border-radius:50%;background:#b8ff78;
+      box-shadow:0 0 8px rgba(184,255,120,.9);animation:pulsoLive 1.2s infinite;flex-shrink:0;}
+    @keyframes pulsoLive{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}
+    .gauss-chat-body{padding:14px 18px;font-size:1rem;line-height:1.6;color:#6d442e;min-height:72px;}
+    .typing{border-right:3px solid var(--gauss-orange);animation:cursorBlink .7s infinite;}
+    @keyframes cursorBlink{0%,100%{border-color:var(--gauss-orange)}50%{border-color:transparent}}
+    
+    /* VOZ ESTADO */
+    .voz-estado{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;
+      padding:4px 14px;border-radius:30px;color:#7c5a4c;background:rgba(255,235,186,0.5);margin-bottom:20px;}
+    .voz-estado.activa{color:#3a7a10;background:rgba(180,255,120,0.25);}
+    .voz-estado.inactiva{color:#a35106;background:rgba(255,200,100,0.25);}
+    
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+    .btn{border:none;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1rem;
+      padding:14px 22px;border-radius:18px;transition:.25s ease;box-shadow:0 10px 20px rgba(0,0,0,.08);}
+    .btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,var(--gauss-orange),#d7772f);color:white}
+    .btn-secondary{background:linear-gradient(135deg,var(--gauss-green),#8bc634);color:white}
+    .btn-light{background:white;color:var(--gauss-brown)}
+    .btn-warning{background:linear-gradient(135deg,var(--gauss-yellow),#f6d96d);color:var(--gauss-brown)}
+    .btn-danger{background:linear-gradient(135deg,#d95a4a,#bb342c);color:white}
+    .btn-blue{background:linear-gradient(135deg,var(--gauss-blue),#6e88e8);color:white}
+    
+    .welcome-right{padding:24px;display:flex;align-items:center;justify-content:center;
+      min-height:560px;position:relative;overflow:hidden;}
+    .welcome-right::before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;
+      background:radial-gradient(circle,rgba(226,188,51,.35),rgba(115,162,29,.15));
+      filter:blur(4px);animation:floatBg 4s ease-in-out infinite;}
+    @keyframes floatBg{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    
+    .gauss-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;}
+    .gauss-circle{width:min(370px,78vw);aspect-ratio:1/1;border-radius:50%;
+      background:radial-gradient(circle at center,rgba(255,255,255,.92) 0 52%,transparent 53%),
+      linear-gradient(135deg,var(--gauss-yellow),var(--gauss-green));
+      display:flex;align-items:center;justify-content:center;padding:14px;
+      box-shadow:0 14px 34px rgba(114,39,14,.18);transition:filter .3s ease;animation:floatOwl 2.4s ease-in-out infinite;}
+    .gauss-circle.talking{filter:drop-shadow(0 0 16px rgba(226,188,51,0.85));
+      animation:floatOwl 2.4s ease-in-out infinite,hablarBoca .22s infinite alternate ease-in-out;}
+    @keyframes hablarBoca{0%{transform:scale(1)}100%{transform:scale(1.03,.97)}}
+    @keyframes floatOwl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .gauss-img{width:100%;height:100%;object-fit:contain;border-radius:50%;background:white;}
+    .gauss-name{padding:10px 18px;border-radius:999px;background:white;
+      color:var(--gauss-brown);font-weight:700;box-shadow:0 8px 20px rgba(114,39,14,.12);}
+    
+    /* GAME LAYOUT */
+    .game-screen{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+    .main-panel{padding:22px}.side-panel{padding:18px;position:sticky;top:16px;}
+    .topbar{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+    .topbar h2{font-size:clamp(1.5rem,3vw,2.5rem);color:var(--gauss-brown);margin-bottom:6px}
+    .topbar p{color:#77503d}
+    .progress-card{min-width:260px;background:white;padding:14px 16px;border-radius:20px;box-shadow:0 10px 20px rgba(0,0,0,.06)}
+    .progress-meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-weight:700;color:#6f4835;font-size:.95rem}
+    .progress-track{height:14px;background:#f0e2c4;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gauss-green),#9ad03b);border-radius:999px;transition:.3s ease}
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .meta-box{background:#fffaf0;border:2px solid #f1dfb8;border-radius:18px;padding:12px}
+    .meta-box strong{display:block;color:var(--gauss-orange);margin-bottom:5px;font-size:.95rem}
+    .instructions{background:linear-gradient(135deg,#fff8e8,#fffdf7);border:2px dashed var(--gauss-yellow);
+      border-radius:22px;padding:16px;margin-bottom:18px;line-height:1.55;color:#714633}
+    
+    /* EXERCISE CARD */
+    .exercise-card{background:linear-gradient(180deg,#fffdf9,#fff7ea);border:2px solid #f1dfb7;
+      border-radius:26px;padding:24px 22px;min-height:440px;display:flex;flex-direction:column;align-items:center;gap:20px}
+    .exercise-title{font-size:1.2rem;color:var(--gauss-brown);text-align:center;font-weight:700}
+    .table-context{font-size:1rem;color:#7a5038;text-align:center;background:white;
+      border:2px solid #f1dfb8;border-radius:16px;padding:10px 18px;max-width:480px}
+    
+    /* TABLE */
+    .table-wrap{width:100%;max-width:520px;overflow-x:auto}
+    table.data-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(114,39,14,.1)}
+    table.data-table thead tr{background:linear-gradient(135deg,var(--gauss-orange),#d7772f)}
+    table.data-table thead th{padding:14px 18px;color:white;font-size:1.05rem;font-weight:700;text-align:center;letter-spacing:.3px}
+    table.data-table thead th:first-child{border-radius:20px 0 0 0}
+    table.data-table thead th:last-child{border-radius:0 20px 0 0}
+    table.data-table tbody tr:nth-child(even){background:#fff8ee}
+    table.data-table tbody tr:nth-child(odd){background:white}
+    table.data-table tbody tr:last-child td:first-child{border-radius:0 0 0 20px}
+    table.data-table tbody tr:last-child td:last-child{border-radius:0 0 20px 0}
+    table.data-table tbody td{padding:12px 18px;text-align:center;font-size:1.05rem;
+      color:var(--gauss-brown);border-bottom:1px solid #f2e0be;vertical-align:middle}
+    table.data-table tbody td.label-cell{text-align:left;font-weight:600;display:flex;align-items:center;gap:8px}
+    
+    /* BLANK CELLS */
+    .blank-cell{width:80px;min-height:44px;border:3px dashed #d0b87a;border-radius:14px;
+      background:linear-gradient(135deg,#fffbe8,#fff5cc);display:inline-flex;align-items:center;
+      justify-content:center;cursor:pointer;transition:.2s ease;position:relative;
+      font-size:.85rem;color:#b09060;font-weight:600;margin:0 auto}
+    .blank-cell:hover{border-color:var(--gauss-orange);background:linear-gradient(135deg,#fff3c8,#ffeea0)}
+    .blank-cell.over{border-color:var(--gauss-orange);background:linear-gradient(135deg,#fff0b8,#ffe888);
+      transform:scale(1.08);box-shadow:0 0 0 4px rgba(226,188,51,.3)}
+    .blank-cell.filled{border-style:solid;border-color:var(--gauss-yellow);
+      background:linear-gradient(135deg,#fff4c2,#ffe87a);color:var(--gauss-brown);
+      font-size:1.15rem;font-weight:700;cursor:pointer}
+    .blank-cell.correct{border-color:var(--gauss-green)!important;
+      background:linear-gradient(135deg,#efffea,#d2f5c0)!important;color:#256d1a!important;
+      box-shadow:0 0 0 3px rgba(115,162,29,.25)!important}
+    .blank-cell.wrong{border-color:var(--error)!important;
+      background:linear-gradient(135deg,#fff2ef,#fde0dc)!important;color:#9b2c21!important;
+      box-shadow:0 0 0 3px rgba(217,77,63,.2)!important}
+    .blank-cell.locked{pointer-events:none}
+    
+    /* VALUES POOL */
+    .pool-label{font-weight:700;font-size:1rem;color:var(--gauss-brown);text-align:center}
+    .values-pool{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;
+      background:white;border:2px solid #f3e1bb;border-radius:22px;padding:16px;
+      min-height:80px;width:100%;max-width:520px}
+    .val-chip{min-width:72px;min-height:60px;border-radius:18px;font-size:1.4rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none;
+      transition:.2s ease;animation:popIn .28s ease;background:linear-gradient(135deg,white,#fff1ca);
+      border:3px solid #ecd59f;color:var(--gauss-brown);box-shadow:0 8px 18px rgba(0,0,0,.06);position:relative}
+    .val-chip:hover:not(.used){transform:translateY(-3px) scale(1.06);box-shadow:0 14px 24px rgba(0,0,0,.1)}
+    .val-chip.selected{outline:4px solid rgba(74,103,214,.4);transform:scale(1.1)}
+    .val-chip.used{opacity:.35;pointer-events:none;cursor:default}
+    .val-chip.locked{pointer-events:none}
+    @keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    
+    /* FEEDBACK */
+    .feedback{min-height:80px;margin-top:14px;border-radius:20px;padding:16px 18px;
+      display:flex;align-items:center;line-height:1.5;font-size:1rem;
+      border:2px solid #ead8af;background:white;color:#6d4732;width:100%}
+    .feedback.ok{background:#f3fff0;border-color:#bfe1ad;color:#2f6d1a}
+    .feedback.error{background:#fff2ef;border-color:#efc0b8;color:#9b2c21}
+    .feedback.info{background:#f7f8ff;border-color:#d8ddff;color:#4252aa}
+    .bottom-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    
+    /* SIDE */
+    .gauss-side{background:linear-gradient(180deg,#fff4d5,#fffdf8);border:2px solid #efd9a0;
+      border-radius:24px;padding:16px;text-align:center}
+    .gauss-side .mini-img-wrap{width:120px;height:120px;border-radius:50%;padding:8px;
+      margin:0 auto 12px;background:linear-gradient(135deg,var(--gauss-yellow),var(--gauss-green));
+      box-shadow:0 10px 20px rgba(114,39,14,.12);transition:filter .3s ease}
+    .gauss-side .mini-img-wrap.talking{filter:drop-shadow(0 0 12px rgba(226,188,51,0.85));
+      animation:hablarBoca .22s infinite alternate ease-in-out}
+    .gauss-side img{width:100%;height:100%;object-fit:cover;border-radius:50%;background:white}
+    .gauss-side h3{color:var(--gauss-brown);margin-bottom:8px}
+    .gauss-side p{color:#714633;line-height:1.5;margin-bottom:12px;font-size:.95rem}
+    .side-badge{display:inline-block;padding:10px 16px;border-radius:999px;
+      background:linear-gradient(135deg,var(--gauss-orange),#d56f2d);
+      color:white;font-weight:700;margin-top:6px}
+    .stars{margin-top:16px;font-size:1.7rem;letter-spacing:4px}
+    .attempts-chip{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:999px;
+      background:white;color:var(--gauss-brown);font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.06)}
+    .score-breakdown{margin-top:14px;padding:12px;background:white;border-radius:16px;
+      border:2px solid #f1dfb8;font-size:.9rem;color:#714633}
+    .score-breakdown strong{color:var(--gauss-blue)}
+    .table-tip{margin-top:12px;padding:12px;background:linear-gradient(135deg,#f0f3ff,#f8f9ff);
+      border:2px solid #d0d9ff;border-radius:16px;font-size:.85rem;color:#3a4eaa;
+      text-align:left;line-height:1.6}
+    .table-tip strong{display:block;margin-bottom:4px;font-size:.9rem}
+    
+    /* SIDE CHAT */
+    .side-chat{background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;
+      border-radius:18px;overflow:hidden;margin-bottom:10px;box-shadow:0 4px 12px rgba(114,39,14,0.08)}
+    .side-chat-header{display:flex;align-items:center;gap:6px;padding:6px 12px;
+      background:linear-gradient(145deg,#f6b243,#ef8f1e);color:white;font-weight:700;font-size:.82rem}
+    .side-chat-body{padding:10px 12px;font-size:.9rem;line-height:1.5;color:#6d442e;min-height:52px}
+    
+    /* RESULT */
+    .result-wrap{min-height:calc(100vh - 32px);display:flex;align-items:center;justify-content:center}
+    .result-card{width:min(900px,100%);padding:30px;text-align:center}
+    .result-img-wrap{width:130px;height:130px;margin:0 auto 16px;border-radius:50%;padding:8px;
+      background:linear-gradient(135deg,var(--gauss-yellow),var(--gauss-green));
+      box-shadow:0 12px 28px rgba(114,39,14,.12);transition:filter .3s ease}
+    .result-img-wrap.talking{filter:drop-shadow(0 0 14px rgba(226,188,51,0.85));
+      animation:hablarBoca .22s infinite alternate ease-in-out}
+    .result-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;background:white}
+    .result-title{font-size:clamp(2rem,4vw,3rem);color:var(--gauss-brown);margin-bottom:10px}
+    .result-score{font-size:clamp(2.6rem,6vw,4.6rem);color:var(--gauss-orange);margin-bottom:12px}
+    .result-message{max-width:700px;margin:0 auto 18px;line-height:1.6;font-size:1.08rem;color:#714633}
+    .result-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:26px}
+    .decimal-explainer{background:linear-gradient(135deg,#f0f3ff,#f8f9ff);border:2px solid #a0b4f8;
+      border-radius:20px;padding:18px;margin:18px auto;max-width:600px;text-align:left;color:#2d4acc}
+    .decimal-explainer h4{margin-bottom:8px;font-size:1.1rem}
+    .decimal-explainer p{font-size:.95rem;line-height:1.6;color:#4a4a8a}
+    
+    /* RESULT SPEECH */
+    .result-speech-bubble{background:linear-gradient(135deg,#fff8ea,#fff2d8);
+      border:2px solid #ffd48e;border-radius:22px;overflow:hidden;max-width:640px;
+      margin:0 auto 18px;box-shadow:0 8px 20px rgba(114,39,14,0.08)}
+    .result-speech-header{display:flex;align-items:center;gap:8px;padding:8px 14px;
+      background:linear-gradient(145deg,#f6b243,#ef8f1e);color:white;font-weight:700;font-size:.9rem}
+    .result-speech-body{padding:14px 18px;font-size:1rem;line-height:1.6;color:#6d442e;min-height:60px}
+    .result-voz{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;
+      padding:4px 14px;border-radius:30px;color:#7c5a4c;background:rgba(255,235,186,0.5);margin-bottom:14px}
+    .result-voz.activa{color:#3a7a10;background:rgba(180,255,120,0.25)}
+    
+    /* DECORATIONS */
+    .bubble{position:fixed;border-radius:50%;pointer-events:none;opacity:.18;z-index:0;
+      animation:float2 8s ease-in-out infinite;filter:blur(2px)}
+    .b1{width:150px;height:150px;background:var(--gauss-yellow);top:20px;left:18px}
+    .b2{width:130px;height:130px;background:var(--gauss-green);bottom:32px;right:30px;animation-delay:1.4s}
+    .b3{width:110px;height:110px;background:var(--gauss-orange);top:35%;right:12%;animation-delay:2.2s}
+    @keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+    @keyframes celebrate{0%{transform:scale(1)rotate(0deg)}25%{transform:scale(1.15)rotate(-5deg)}
+      50%{transform:scale(1.2)rotate(5deg)}75%{transform:scale(1.1)rotate(-2deg)}100%{transform:scale(1)rotate(0deg)}}
+    .celebrate{animation:celebrate .5s ease}
+    
+    @media(max-width:980px){.welcome,.game-screen{grid-template-columns:1fr}.side-panel{position:static}.meta-grid{grid-template-columns:repeat(2,1fr)}.welcome-right{min-height:420px}}
+    @media(max-width:640px){body{padding:12px}.welcome-left,.main-panel,.side-panel,.result-card{padding:18px}.meta-grid{grid-template-columns:1fr}.result-actions,.bottom-actions,.actions{flex-direction:column}.btn{width:100%}.val-chip{min-width:62px;min-height:52px;font-size:1.2rem}}
+    
+    .floating-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .star{position:absolute;font-size:1.5rem;opacity:0;animation:starBlink ease-in-out infinite;
+      filter:drop-shadow(0 0 7px rgba(255,215,0,0.9));user-select:none}
+    .star:nth-child(1){top:4%;left:6%;font-size:1.2rem;animation-duration:2.8s}
+    .star:nth-child(2){top:7%;left:50%;font-size:1.8rem;animation-duration:3.3s;animation-delay:.6s}
+    .star:nth-child(3){top:3%;left:84%;font-size:1.3rem;animation-duration:2.5s;animation-delay:1.1s}
+    .star:nth-child(4){top:91%;left:12%;font-size:1.1rem;animation-duration:3.6s;animation-delay:1.5s}
+    .star:nth-child(5){top:94%;left:72%;font-size:1.4rem;animation-duration:3.0s;animation-delay:.9s}
+    .star:nth-child(6){top:44%;left:1%;font-size:1.0rem;animation-duration:3.2s;animation-delay:2.1s}
+    .star:nth-child(7){top:54%;left:98%;font-size:1.5rem;animation-duration:2.7s;animation-delay:1.8s}
+    .star:nth-child(8){top:22%;left:22%;font-size:1.1rem;animation-duration:4.0s;animation-delay:3.0s}
+    .star:nth-child(9){top:78%;left:60%;font-size:1.3rem;animation-duration:2.9s;animation-delay:4.2s}
+    @keyframes starBlink{0%,100%{opacity:0;transform:scale(0.6)rotate(0deg)}40%{opacity:1;transform:scale(1.4)rotate(25deg)}70%{opacity:0.7;transform:scale(1.1)rotate(-10deg)}}
+    .cloud{position:absolute;background:rgba(255,255,255,0.88);border-radius:60px;
+      animation:cloudDrift linear infinite;box-shadow:0 6px 22px rgba(160,200,255,0.25),0 2px 0 rgba(255,255,255,0.6) inset}
+    .cloud::before,.cloud::after{content:"";position:absolute;background:rgba(255,255,255,0.90);border-radius:50%}
+    .cloud:nth-child(10){width:120px;height:40px;top:6%;left:-150px;opacity:.65;animation-duration:30s}
+    .cloud:nth-child(10)::before{width:62px;height:62px;top:-32px;left:14px}
+    .cloud:nth-child(10)::after{width:42px;height:42px;top:-20px;left:58px}
+    .cloud:nth-child(11){width:85px;height:28px;top:13%;left:-110px;opacity:.45;animation-duration:40s;animation-delay:10s}
+    .cloud:nth-child(11)::before{width:42px;height:42px;top:-22px;left:10px}
+    .cloud:nth-child(11)::after{width:30px;height:30px;top:-14px;left:40px}
+    .cloud:nth-child(12){width:150px;height:48px;top:78%;left:-180px;opacity:.42;animation-duration:48s;animation-delay:16s}
+    .cloud:nth-child(12)::before{width:76px;height:76px;top:-38px;left:18px}
+    .cloud:nth-child(12)::after{width:54px;height:54px;top:-24px;left:74px}
+    .cloud:nth-child(13){width:95px;height:32px;top:87%;left:-115px;opacity:.38;animation-duration:35s;animation-delay:24s}
+    .cloud:nth-child(13)::before{width:48px;height:48px;top:-24px;left:12px}
+    .cloud:nth-child(13)::after{width:34px;height:34px;top:-16px;left:46px}
+    @keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 220px))}}
+    .math-sym{position:absolute;font-family:"Fredoka",sans-serif;font-weight:700;opacity:0;
+      animation:mathFloat ease-in-out infinite;user-select:none;pointer-events:none;
+      text-shadow:0 2px 8px rgba(0,0,0,0.10)}
+    .math-sym:nth-child(14){top:17%;left:3%;font-size:2.6rem;color:rgba(194,92,38,0.55);animation-duration:6.5s}
+    .math-sym:nth-child(15){top:70%;left:5%;font-size:2.0rem;color:rgba(115,162,29,0.58);animation-duration:7.2s;animation-delay:1.8s}
+    .math-sym:nth-child(16){top:22%;left:92%;font-size:2.8rem;color:rgba(226,188,51,0.70);animation-duration:5.8s;animation-delay:0.9s}
+    .math-sym:nth-child(17){top:63%;left:89%;font-size:2.2rem;color:rgba(194,92,38,0.52);animation-duration:8.5s;animation-delay:3.0s}
+    .math-sym:nth-child(18){top:46%;left:0%;font-size:2.3rem;color:rgba(115,162,29,0.48);animation-duration:7.0s;animation-delay:3.5s}
+    .math-sym:nth-child(19){top:83%;left:44%;font-size:1.9rem;color:rgba(194,92,38,0.44);animation-duration:7.8s;animation-delay:4.5s}
+    .math-sym:nth-child(20){top:9%;left:68%;font-size:2.4rem;color:rgba(226,188,51,0.60);animation-duration:6.2s;animation-delay:1.2s}
+    .math-sym:nth-child(21){top:34%;left:87%;font-size:2.1rem;color:rgba(115,162,29,0.54);animation-duration:9.0s;animation-delay:5.5s}
+    .math-sym:nth-child(22){top:53%;left:48%;font-size:1.7rem;color:rgba(194,92,38,0.38);animation-duration:5.2s;animation-delay:2.2s}
+    .math-sym:nth-child(23){top:40%;left:96%;font-size:2.0rem;color:rgba(226,188,51,0.52);animation-duration:6.8s;animation-delay:6.0s}
+    @keyframes mathFloat{0%{opacity:0;transform:translateY(0)rotate(0deg)scale(0.7)}20%{opacity:0.85}
+      50%{opacity:0.72;transform:translateY(-32px)rotate(14deg)scale(1.15)}80%{opacity:0.85}
+      100%{opacity:0;transform:translateY(0)rotate(-10deg)scale(0.7)}}
+    .dot{position:absolute;border-radius:50%;animation:bounceDot ease-in-out infinite;
+      box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+    .dot:nth-child(24){top:19%;left:14%;width:20px;height:20px;background:rgba(255,100,120,0.60);animation-duration:3.8s}
+    .dot:nth-child(25){top:59%;left:87%;width:15px;height:15px;background:rgba(80,190,100,0.65);animation-duration:4.3s;animation-delay:1.1s}
+    .dot:nth-child(26){top:34%;left:28%;width:22px;height:22px;background:rgba(226,188,51,0.60);animation-duration:3.5s;animation-delay:0.6s}
+    .dot:nth-child(27){top:74%;left:20%;width:13px;height:13px;background:rgba(80,150,255,0.60);animation-duration:5.2s;animation-delay:2.2s}
+    .dot:nth-child(28){top:29%;left:77%;width:17px;height:17px;background:rgba(200,80,200,0.50);animation-duration:4.6s;animation-delay:1.7s}
+    .dot:nth-child(29){top:84%;left:54%;width:24px;height:24px;background:rgba(255,165,0,0.55);animation-duration:3.3s;animation-delay:0.9s}
+    .dot:nth-child(30){top:11%;left:38%;width:11px;height:11px;background:rgba(115,162,29,0.65);animation-duration:6.2s;animation-delay:3.2s}
+    .dot:nth-child(31){top:64%;left:68%;width:19px;height:19px;background:rgba(255,80,80,0.45);animation-duration:4.0s;animation-delay:5.0s}
+    @keyframes bounceDot{0%,100%{transform:translateY(0)scale(1);opacity:0.55}35%{transform:translateY(-24px)scale(1.25);opacity:0.95}65%{transform:translateY(-8px)scale(0.92);opacity:0.75}}
+    .confetti{position:absolute;width:0;height:0;opacity:0;animation:confettiFall linear infinite;pointer-events:none}
+    .confetti:nth-child(32){border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid rgba(226,188,51,0.60);top:-5%;left:18%;animation-duration:13s}
+    .confetti:nth-child(33){border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:11px solid rgba(194,92,38,0.55);top:-5%;left:62%;animation-duration:16s;animation-delay:4.5s}
+    .confetti:nth-child(34){border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:17px solid rgba(115,162,29,0.55);top:-5%;left:42%;animation-duration:19s;animation-delay:9s}
+    .confetti:nth-child(35){border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:13px solid rgba(255,100,120,0.50);top:-5%;left:80%;animation-duration:15s;animation-delay:2.5s}
+    .confetti:nth-child(36){border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid rgba(80,150,255,0.50);top:-5%;left:32%;animation-duration:17s;animation-delay:7s}
+    @keyframes confettiFall{0%{opacity:0;transform:translateY(0)rotate(0deg)}10%{opacity:0.8}90%{opacity:0.6}100%{opacity:0;transform:translateY(110vh)rotate(800deg)}}
+  </style>
+</head>
+<body>
+  <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+  
+  <audio id="musicaBg" loop preload="auto">
+    <source src="../../musica/enriquecedora1.mp3" type="audio/mpeg">
+  </audio>
+  
+  <div class="floating-particles">
+    <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div>
+    <div class="star">✨</div><div class="star">⭐</div><div class="star">✨</div>
+    <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div>
+    <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
+    <div class="math-sym">+</div><div class="math-sym">×</div><div class="math-sym">÷</div>
+    <div class="math-sym">=</div><div class="math-sym">∑</div><div class="math-sym">π</div>
+    <div class="math-sym">√</div><div class="math-sym">∞</div><div class="math-sym">%</div>
+    <div class="math-sym">²</div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+    <div class="confetti"></div><div class="confetti"></div>
+  </div>
+
+  <div class="app">
+    <!-- WELCOME -->
+    <section class="screen active" id="screenWelcome">
+      <div class="welcome">
+        <div class="card welcome-left">
+          <div class="badge">🦉 Juego 17 · Unidad 4</div>
+          <h1 class="title">Completa la tabla</h1>
+          <p class="subtitle">Aprende a leer e interpretar tablas de datos. Arrastra los valores correctos para llenar los espacios vacíos de la tabla.</p>
+          <div class="gauss-chat">
+            <div class="gauss-chat-header"><span class="dot-live"></span><span>Gauss está hablando</span></div>
+            <div class="gauss-chat-body" id="welcomeSpeech">¡Hola! Soy Gauss. En este juego verás una tabla con algunos datos faltantes. Tienes que encontrar los valores correctos entre las opciones disponibles y arrastrarlos a los espacios vacíos. ¡Lee bien la tabla para entender qué dato corresponde a cada hueco!</div>
+          </div>
+          <div class="voz-estado inactiva" id="vozEstado"><span>🔊</span><span id="vozTexto">Cargando voz...</span></div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="startGame()">Iniciar juego</button>
+            <button class="btn btn-light" onclick="changeWelcomeSpeech()">🦉 Otro mensaje</button>
+            <button class="btn btn-light" onclick="Menu()" aria-label="Volver al menú principal">
+              Volver al menú
+            </button>
+          </div>
+        </div>
+        <div class="card welcome-right">
+          <div class="gauss-wrap">
+            <div class="gauss-circle" id="owlWelcome">
+              <img class="gauss-img" src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:6rem;line-height:1\'>🦉</div>';">
+            </div>
+            <div class="gauss-name">Gauss · Tu guía matemático</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section class="screen" id="screenGame">
+      <div class="topbar">
+        <div><h2>Juego 17: Completa la tabla</h2><p>Unidad 4 · Tema: Lectura e interpretación de tablas</p></div>
+        <div class="progress-card">
+          <div class="progress-meta"><span id="exerciseCounter">Ronda 1 de 10</span><span id="scoreCounter">Aciertos: 0</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+      <div class="game-screen">
+        <div class="card main-panel">
+          <div class="meta-grid">
+            <div class="meta-box"><strong>Unidad</strong><span>4</span></div>
+            <div class="meta-box"><strong>Tema</strong><span>Tablas de datos</span></div>
+            <div class="meta-box"><strong>Objetivo</strong><span>Interpretar y completar tablas.</span></div>
+            <div class="meta-box"><strong>Progreso</strong><span id="miniProgress">1/10</span></div>
+          </div>
+          <div class="instructions"><strong>Instrucciones:</strong> Lee la tabla con atención. La última fila muestra el <strong>TOTAL</strong> de todos los valores. Arrastra cada número del banco de valores al espacio vacío que le corresponde. Usa el total como pista para calcular los valores que faltan. Si te equivocas, pulsa el espacio ocupado para devolver el valor al banco.</div>
+          <div class="exercise-card">
+            <h3 class="exercise-title" id="exerciseTitle">Completa los datos que faltan en la tabla</h3>
+            <div class="table-context" id="tableContext">Lee la información y coloca los valores correctos.</div>
+            <div class="table-wrap"><table class="data-table" id="dataTable"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
+            <div class="pool-label">📦 Banco de valores — arrastra el correcto a cada espacio</div>
+            <div class="values-pool" id="valuesPool"></div>
+          </div>
+          <div class="feedback info" id="feedbackBox">Gauss dice: Lee cada fila de la tabla. Busca el valor que corresponde a cada espacio vacío.</div>
+          <div class="bottom-actions">
+            <button class="btn btn-warning" id="checkBtn" onclick="checkAnswer()">Comprobar tabla</button>
+            <button class="btn btn-secondary" id="nextBtn" onclick="nextExercise()" style="display:none;">Siguiente ronda</button>
+            <button class="btn btn-blue" id="hintBtn" onclick="showHint()">💡 Pista</button>
+            <button class="btn btn-light" onclick="backToWelcome()">Volver</button>
+          </div>
+        </div>
+        <div class="card side-panel">
+          <div class="gauss-side">
+            <div class="mini-img-wrap" id="owlSide">
+              <img src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:3rem;line-height:1\'>🦉</div>';">
+            </div>
+            <h3>Gauss te acompaña</h3>
+            <div class="side-chat">
+              <div class="side-chat-header"><span class="dot-live"></span><span>Gauss habla</span></div>
+              <div class="side-chat-body" id="sideMessage">Las tablas organizan datos en filas y columnas. Cada celda corresponde a una fila y una columna específicas.</div>
+            </div>
+            <div class="side-badge" id="sideBadge">Ronda 1</div>
+            <div class="attempts-chip" id="attemptCounter">Intentos: 0</div>
+            <div class="stars" id="starsBox">⭐</div>
+            <div class="score-breakdown" id="scoreBreakdown"><strong>Completados:</strong> 0 / 0</div>
+            <div class="table-tip" id="tableTip"><strong>📋 Tip para tablas:</strong> Sigue la fila hacia la derecha para saber qué dato le corresponde a cada celda vacía.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen" id="screenResult">
+      <div class="result-wrap">
+        <div class="card result-card">
+          <div class="result-img-wrap" id="owlResult">
+            <img src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:4rem;line-height:1\'>🦉</div>';">
+          </div>
+          <h2 class="result-title">¡Terminaste el juego!</h2>
+          <div class="result-score" id="finalScore">10 / 10</div>
+          <div class="stars" id="resultStars">⭐ ⭐ ⭐</div>
+          <p class="result-message" id="resultMessage">¡Completaste todas las tablas correctamente!</p>
+          <div class="result-speech-bubble">
+            <div class="result-speech-header"><span class="dot-live"></span><span>Gauss está hablando</span></div>
+            <div class="result-speech-body" id="resultSpeech">Gauss dice: Has demostrado que sabes leer e interpretar tablas de datos.</div>
+          </div>
+          <div class="result-voz inactiva" id="resultVozEstado"><span>🔊</span><span id="resultVozTexto">Voz lista</span></div>
+          <div class="decimal-explainer">
+            <h4>📖 ¿Recuerdas cómo leer tablas?</h4>
+            <p>Una <strong>tabla de datos</strong> organiza información en <strong>filas</strong> (horizontales) y <strong>columnas</strong> (verticales). Para encontrar un dato, identifica su fila y su columna.<br><br>Ejemplo: si buscas la cantidad de peras, localiza la fila "Peras" y lee el valor en la columna "Cantidad".</p>
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-primary" onclick="restartGame()">Intentar otra vez</button>
+            <button class="btn btn-light" onclick="Menu()">Ir al menú</button>
+            <button class="btn btn-secondary" onclick="NextGame()">Siguiente juego</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   SISTEMA DE AUDIO - VERSIÓN CORREGIDA
+═══════════════════════════════════════════════════ */
+const bgAudio = document.getElementById('musicaBg');
+const vozEstadoEl = document.getElementById('vozEstado');
+const vozTextoEl = document.getElementById('vozTexto');
+const owlWelcome = document.getElementById('owlWelcome');
+const owlSide = document.getElementById('owlSide');
+const owlResult = document.getElementById('owlResult');
+
+let vozGauss = null, vocesListas = false, vozActivada = false, primerGesto = false;
+let autoInicioIntentado = false, musicStarted = false, escribiendoInt = null;
+let escribiendoSideInt = null, escribiendoResultInt = null, watchdogTimer = null;
+let speakingNow = false, audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playCorrectSound() {
+  try {
+    const ctx = getAudioCtx();
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.10;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.25, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.start(t); osc.stop(t + 0.4);
+    });
+  } catch(e) {}
+}
+
+function playWrongSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.22, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.45);
+  } catch(e) {}
+}
+
+function playHintSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'triangle'; osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+
+function playResultSound(good) {
+  try {
+    const ctx = getAudioCtx();
+    if (good) {
+      [523,659,784,1047,784,1047].forEach((freq, i) => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = freq;
+        const t = ctx.currentTime + i * 0.13;
+        gain.gain.setValueAtTime(0.22, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.start(t); osc.stop(t + 0.35);
+      });
+    } else {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(400, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.6);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.65);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.65);
+    }
+  } catch(e) {}
+}
+
+function actualizarEstadoVoz(estado, msg) {
+  if (!vozEstadoEl || !vozTextoEl) return;
+  vozEstadoEl.className = 'voz-estado ' + estado;
+  vozTextoEl.textContent = msg;
+}
+
+function activarHabla() { [owlWelcome, owlSide, owlResult].forEach(el => { if(el) el.classList.add("talking"); }); }
+function desactivarHabla() { [owlWelcome, owlSide, owlResult].forEach(el => { if(el) el.classList.remove("talking"); }); }
+
+function cargarVoces() {
+  if (!('speechSynthesis' in window)) return false;
+  const lista = window.speechSynthesis.getVoices();
+  if (!lista || !lista.length) return false;
+  vozGauss = lista.find(v => /Monica|Paulina|Helena|Sandra|Sofia|Sabina|Luciana/i.test(v.name) && /es/i.test(v.lang)) ||
+    lista.find(v => /es-HN/i.test(v.lang)) || lista.find(v => /es-MX/i.test(v.lang)) ||
+    lista.find(v => /es-ES/i.test(v.lang)) || lista.find(v => /^es/i.test(v.lang)) || lista[0];
+  vocesListas = true;
+  return true;
+}
+
+if ('speechSynthesis' in window) {
+  cargarVoces();
+  window.speechSynthesis.onvoiceschanged = () => { cargarVoces(); };
+  actualizarEstadoVoz('inactiva', 'Toca la pantalla si el navegador bloquea la voz');
+} else {
+  actualizarEstadoVoz('inactiva', 'Tu navegador no soporta voz');
+}
+
+function escribirEnEl(elId, texto, vel = 20) {
+  return new Promise(resolve => {
+    const el = document.getElementById(elId);
+    if (!el) { resolve(); return; }
+    if (escribiendoInt) clearInterval(escribiendoInt);
+    el.textContent = ""; el.classList.add("typing"); let i = 0;
+    escribiendoInt = setInterval(() => {
+      el.textContent += texto.charAt(i); i++;
+      if (i >= texto.length) { clearInterval(escribiendoInt); escribiendoInt = null; el.classList.remove("typing"); resolve(); }
+    }, vel);
+  });
+}
+
+function escribirSide(texto) {
+  const el = document.getElementById('sideMessage');
+  if (!el) return;
+  if (escribiendoSideInt) clearInterval(escribiendoSideInt);
+  el.textContent = ""; el.classList.add("typing"); let i = 0;
+  escribiendoSideInt = setInterval(() => {
+    el.textContent += texto.charAt(i); i++;
+    if (i >= texto.length) { clearInterval(escribiendoSideInt); escribiendoSideInt = null; el.classList.remove("typing"); }
+  }, 20);
+}
+
+function escribirResult(texto) {
+  const el = document.getElementById('resultSpeech');
+  if (!el) return;
+  if (escribiendoResultInt) clearInterval(escribiendoResultInt);
+  el.textContent = ""; el.classList.add("typing"); let i = 0;
+  escribiendoResultInt = setInterval(() => {
+    el.textContent += texto.charAt(i); i++;
+    if (i >= texto.length) { clearInterval(escribiendoResultInt); escribiendoResultInt = null; el.classList.remove("typing"); }
+  }, 22);
+}
+
+async function hablar(texto, target) {
+  if (!texto) return;
+  if (target === 'side') { escribirSide(texto); }
+  else if (target === 'result') { escribirResult(texto); }
+  else { escribirEnEl(target || 'welcomeSpeech', texto); }
+  if (!vozActivada || !('speechSynthesis' in window)) return;
+  if (speakingNow) window.speechSynthesis.cancel();
+  if (!vocesListas) cargarVoces();
+  await new Promise(r => setTimeout(r, 120));
+  const msg = new SpeechSynthesisUtterance(texto);
+  msg.lang = vozGauss?.lang || "es-ES"; msg.rate = 1.0; msg.pitch = 1.35; msg.volume = 1;
+  if (vozGauss) msg.voice = vozGauss;
+  speakingNow = true; activarHabla();
+  actualizarEstadoVoz('activa', 'Gauss está hablando...');
+  if (watchdogTimer) clearTimeout(watchdogTimer);
+  watchdogTimer = setTimeout(() => { speakingNow = false; desactivarHabla(); actualizarEstadoVoz('activa', 'Voz lista ✓'); }, 14000);
+  const resumeIv = setInterval(() => { if (window.speechSynthesis.paused) window.speechSynthesis.resume(); }, 1000);
+  const limpiar = () => { clearInterval(resumeIv); clearTimeout(watchdogTimer); speakingNow = false; desactivarHabla(); };
+  msg.onend = () => { limpiar(); actualizarEstadoVoz('activa', 'Voz lista ✓'); };
+  msg.onerror = (e) => { limpiar(); if (e.error !== 'interrupted' && e.error !== 'canceled') actualizarEstadoVoz('inactiva', 'Toca la pantalla para activar voz'); };
+  try { window.speechSynthesis.speak(msg); } catch(e) { limpiar(); }
+}
+
+function startMusic() {
+  if (!bgAudio || musicStarted) return;
+  bgAudio.volume = 0.30;
+  bgAudio.play().then(() => { musicStarted = true; }).catch(() => {});
+}
+
+function arrancarAutomaticamente() {
+  if (autoInicioIntentado) return;
+  autoInicioIntentado = true; vozActivada = true; primerGesto = true;
+  if (!vocesListas) cargarVoces();
+  actualizarEstadoVoz('activa', 'Intentando iniciar audio...');
+  startMusic();
+  setTimeout(() => hablar("¡Hola! En este juego verás una tabla con datos faltantes. Arrastra los valores correctos a los espacios vacíos. ¡Lee bien cada fila!", 'welcomeSpeech'), 500);
+}
+
+function activarEnPrimerGesto() {
+  startMusic();
+  if (primerGesto) return;
+  primerGesto = true; vozActivada = true;
+  if (!vocesListas) cargarVoces();
+  actualizarEstadoVoz('activa', 'Voz lista ✓');
+}
+
+['click','touchstart'].forEach(evt => {
+  document.addEventListener(evt, function() { activarEnPrimerGesto(); }, { once: true });
+});
+window.addEventListener("load", () => { arrancarAutomaticamente(); });
+
+/* ══════════════════════════════════════════════════
+   MENSAJES
+═══════════════════════════════════════════════════ */
+const welcomeMessages = [
+  "¡Hola! Soy Gauss. En este juego verás una tabla con algunos datos faltantes. Tienes que encontrar los valores correctos entre las opciones disponibles y arrastrarlos a los espacios vacíos. ¡Lee bien la tabla!",
+  "Las tablas son una manera muy útil de organizar información. En este juego practicarás leer tablas y completar los datos que faltan.",
+  "Para completar una tabla, busca la fila correcta, luego mira la columna correspondiente. El valor que coloques debe tener sentido con los demás datos de esa fila.",
+  "¡Las tablas están en todas partes! Horarios, precios, resultados deportivos... Aprende a leerlas bien completando este juego."
+];
+const positiveMessages = ["¡Tabla completada perfectamente! Leíste muy bien los datos.","¡Excelente! Cada valor fue al lugar correcto.","¡Fantástico! Interpretaste la tabla sin errores.","¡Muy bien! Todos los datos encajan perfectamente.","¡Perfecto! Tienes muy buena comprensión lectora de tablas.","¡Increíble trabajo! Completaste todos los espacios correctamente."];
+const retryMessages = ["Hay algún valor en el lugar incorrecto. Revisa cada fila con cuidado.","Casi. Fíjate bien en qué columna y fila corresponde cada dato.","Revisa: ¿el valor que pusiste corresponde a esa fila y columna?","Buen intento. Lee de nuevo la tabla y verifica cada celda.","Mira bien cada fila. El contexto te ayuda a saber qué número va en cada espacio."];
+const sideHints = ["Las tablas organizan datos en filas y columnas. Cada celda corresponde a una fila y una columna específicas.","Lee el encabezado de la columna para saber qué tipo de dato va ahí.","Sigue la fila horizontalmente para relacionar el nombre con su valor.","Si hay un total, verifica que los demás datos sumen correctamente.","Compara los valores que ya están dados para estimar el valor faltante.","Las filas van de izquierda a derecha. Las columnas, de arriba a abajo."];
+const tableTips = ["Sigue la fila hacia la derecha para saber qué dato le corresponde a cada celda vacía.","Lee el encabezado de cada columna: te dice qué tipo de dato encontrarás.","Si la tabla tiene totales, pueden ayudarte a calcular el dato faltante.","Compara con los datos ya visibles en la misma columna para orientarte.","Primero identifica la fila y la columna del espacio vacío, luego busca el valor correcto."];
+const hintMessages = ["Pista: Fíjate en los valores ya colocados en la misma columna.","Pista: Lee el encabezado de la columna vacía para saber qué tipo de dato necesitas.","Pista: Si hay una fila de totales, la suma de los otros valores te puede guiar.","Pista: Descarta los valores que ya usaste y analiza los que quedan.","Pista: Relaciona el nombre de la fila con el dato que tiene sentido para ese elemento."];
+
+/* ══════════════════════════════════════════════════
+   LÓGICA DEL JUEGO
+═══════════════════════════════════════════════════ */
+const roundTemplates = [
+  {context:"Registro de frutas vendidas en la tienda de la escuela.",headers:["🍎 Fruta","📦 Cantidad"],rows:[{label:"Manzanas",icon:"🍎",value:5},{label:"Peras",icon:"🍐",value:8},{label:"Naranjas",icon:"🍊",value:3},{label:"Plátanos",icon:"🍌",value:6},{label:"Uvas",icon:"🍇",value:4}],blanks:[1],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[2,7,9]},
+  {context:"Pelotas de colores contadas en la caja de juegos.",headers:["🎨 Color","⚽ Cantidad"],rows:[{label:"Rojo",icon:"🔴",value:7},{label:"Azul",icon:"🔵",value:4},{label:"Verde",icon:"🟢",value:9},{label:"Amarillo",icon:"🟡",value:2},{label:"Naranja",icon:"🟠",value:5}],blanks:[2],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[6,8,1]},
+  {context:"Temperatura máxima registrada de lunes a viernes (°C).",headers:["📅 Día","🌡️ Temp. (°C)"],rows:[{label:"Lunes",icon:"📅",value:22},{label:"Martes",icon:"📅",value:25},{label:"Miércoles",icon:"📅",value:19},{label:"Jueves",icon:"📅",value:28},{label:"Viernes",icon:"📅",value:24}],blanks:[0,2],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:false,distractors:[15,30,21]},
+  {context:"Calificaciones del examen de matemáticas (sobre 10).",headers:["👤 Estudiante","📝 Calificación"],rows:[{label:"Ana",icon:"👧",value:9},{label:"Luis",icon:"👦",value:7},{label:"Sofía",icon:"👧",value:10},{label:"Carlos",icon:"👦",value:8},{label:"Mía",icon:"👧",value:6}],blanks:[1,3],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:false,distractors:[5,4,3]},
+  {context:"Precipitaciones registradas en los primeros meses del año (mm).",headers:["🗓️ Mes","🌧️ Lluvia (mm)"],rows:[{label:"Enero",icon:"🗓️",value:45},{label:"Febrero",icon:"🗓️",value:62},{label:"Marzo",icon:"🗓️",value:38},{label:"Abril",icon:"🗓️",value:75},{label:"Mayo",icon:"🗓️",value:90}],blanks:[1],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[50,20,100]},
+  {context:"Número de jugadores por equipo en distintos deportes.",headers:["🏅 Deporte","👥 Jugadores"],rows:[{label:"Fútbol",icon:"⚽",value:11},{label:"Baloncesto",icon:"🏀",value:5},{label:"Béisbol",icon:"⚾",value:9},{label:"Voleibol",icon:"🏐",value:6},{label:"Waterpolo",icon:"🤽",value:7}],blanks:[0,2],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:false,distractors:[4,8,10]},
+  {context:"Útiles escolares contados en el salón de clases.",headers:["✏️ Útil","📦 Cantidad"],rows:[{label:"Lápices",icon:"✏️",value:15},{label:"Cuadernos",icon:"📓",value:8},{label:"Reglas",icon:"📏",value:6},{label:"Borradores",icon:"🧹",value:10},{label:"Tijeras",icon:"✂️",value:4}],blanks:[0],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[12,20,7]},
+  {context:"Número de patas de diferentes animales.",headers:["🐾 Animal","🦵 Patas"],rows:[{label:"Perro",icon:"🐶",value:4},{label:"Araña",icon:"🕷️",value:8},{label:"Gallina",icon:"🐔",value:2},{label:"Gato",icon:"🐱",value:4},{label:"Insecto",icon:"🐛",value:6}],blanks:[1],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[3,5,10]},
+  {context:"Número de páginas de libros del rincón de lectura.",headers:["📚 Libro","📄 Páginas"],rows:[{label:"El principito",icon:"📗",value:96},{label:"Matilda",icon:"📘",value:240},{label:"Coraline",icon:"📕",value:162},{label:"Hatchet",icon:"📙",value:195},{label:"Charlotte's Web",icon:"📗",value:184}],blanks:[1,3],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:false,distractors:[120,300,80]},
+  {context:"Semillas plantadas y cuántas germinaron en el experimento de ciencias.",headers:["🌱 Semilla","🌿 Germinadas"],rows:[{label:"Frijol",icon:"🫘",value:8},{label:"Girasol",icon:"🌻",value:5},{label:"Tomate",icon:"🍅",value:7},{label:"Maíz",icon:"🌽",value:10},{label:"Zanahoria",icon:"🥕",value:4}],blanks:[1],totalLabel:"TOTAL",totalIcon:"➕",totalBlank:true,distractors:[3,6,9]}
+];
+
+let gameData = [], currentRound = 0, score = 0, currentAttempts = 0, solvedCurrent = false;
+let selectedVal = null, filledCells = {};
+
+function getTotal(tpl){ return tpl.rows.reduce((s,r)=>s+r.value, 0); }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function changeWelcomeSpeech(){
+  activarEnPrimerGesto();
+  const msg = pick(welcomeMessages);
+  hablar(msg, 'welcomeSpeech');
+}
+
+function startGame(){
+  activarEnPrimerGesto();
+  const indices = shuffle([...Array(roundTemplates.length).keys()]);
+  gameData = [];
+  for(let i=0;i<10;i++) gameData.push(roundTemplates[indices[i % roundTemplates.length]]);
+  currentRound = 0; score = 0;
+  renderRound();
+  showScreen("screenGame");
+  setTimeout(() => hablar("¡Comencemos! Lee la tabla y arrastra los valores correctos a los espacios vacíos. ¡Tú puedes!", 'side'), 400);
+}
+
+function backToWelcome(){
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  showScreen("screenWelcome");
+}
+
+function renderRound(){
+  const tpl = gameData[currentRound];
+  filledCells = {};
+  tpl.blanks.forEach(bi => { filledCells[bi] = null; });
+  if(tpl.totalBlank) filledCells[-1] = null;
+  selectedVal = null; solvedCurrent = false; currentAttempts = 0;
+
+  const rn = currentRound + 1;
+  document.getElementById("exerciseCounter").textContent = "Ronda " + rn + " de 10";
+  document.getElementById("scoreCounter").textContent = "Aciertos: " + score;
+  document.getElementById("miniProgress").textContent = rn + "/10";
+  document.getElementById("sideBadge").textContent = "Ronda " + rn;
+  document.getElementById("sideMessage").textContent = pick(sideHints);
+  document.getElementById("attemptCounter").textContent = "Intentos: " + currentAttempts;
+  document.getElementById("progressFill").style.width = (currentRound/10)*100 + "%";
+  document.getElementById("tableTip").innerHTML = "<strong>📋 Tip para tablas:</strong> " + pick(tableTips);
+
+  const starCount = Math.max(1,Math.min(3,Math.ceil((score+1)/4)));
+  document.getElementById("starsBox").textContent = "⭐ ".repeat(starCount).trim();
+  updateBreakdown();
+
+  const fb = document.getElementById("feedbackBox");
+  fb.className = "feedback info";
+  fb.textContent = "Gauss dice: " + pick(sideHints);
+
+  document.getElementById("checkBtn").style.display = "inline-block";
+  document.getElementById("checkBtn").disabled = false;
+  document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("hintBtn").style.display = "inline-block";
+
+  document.getElementById("tableContext").textContent = tpl.context;
+  document.getElementById("exerciseTitle").textContent = "Completa los datos que faltan en la tabla";
+  renderTable(tpl);
+  renderPool(tpl);
+}
+
+function makeBlankCell(key, correctVal){
+  const cell = document.createElement("div");
+  cell.className = "blank-cell";
+  cell.dataset.blankKey = key;
+  cell.id = "blank-" + key;
+  const filled = filledCells[key];
+  if(filled !== null && filled !== undefined){
+    cell.classList.add("filled");
+    cell.textContent = filled;
+    if(solvedCurrent){
+      cell.classList.add(String(filled) === String(correctVal) ? "correct" : "wrong");
+      cell.classList.add("locked");
+    }
+  } else {
+    cell.textContent = "?";
+  }
+  cell.setAttribute("ondragover","event.preventDefault();onCellOver(event,"+key+")");
+  cell.setAttribute("ondragleave","onCellLeave(event,"+key+")");
+  cell.setAttribute("ondrop","onCellDrop(event,"+key+")");
+  cell.setAttribute("onclick","onCellClick("+key+")");
+  return cell;
+}
+
+function renderTable(tpl){
+  const head = document.getElementById("tableHead");
+  const body = document.getElementById("tableBody");
+  const total = getTotal(tpl);
+  let headHTML = "<tr>";
+  for(let h of tpl.headers) headHTML += "<th>" + h + "</th>";
+  headHTML += "</tr>";
+  head.innerHTML = headHTML;
+  body.innerHTML = "";
+  for(let ri = 0; ri < tpl.rows.length; ri++){
+    const row = tpl.rows[ri];
+    const tr = document.createElement("tr");
+    const tdLabel = document.createElement("td");
+    tdLabel.className = "label-cell";
+    tdLabel.innerHTML = "<span>" + row.icon + "</span><span>" + row.label + "</span>";
+    tr.appendChild(tdLabel);
+    const td = document.createElement("td");
+    if(tpl.blanks.includes(ri)){
+      td.appendChild(makeBlankCell(ri, row.value));
+    } else {
+      td.textContent = row.value;
+      td.style.fontWeight = "700";
+    }
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+  const trTotal = document.createElement("tr");
+  trTotal.style.cssText = "background:linear-gradient(135deg,#fff3cc,#ffe87a);font-weight:700;";
+  const tdTotalLabel = document.createElement("td");
+  tdTotalLabel.className = "label-cell";
+  tdTotalLabel.style.cssText = "color:var(--gauss-orange);font-weight:700;border-top:2px solid #e2bc33;";
+  tdTotalLabel.innerHTML = "<span>" + tpl.totalIcon + "</span><span>" + tpl.totalLabel + "</span>";
+  trTotal.appendChild(tdTotalLabel);
+  const tdTotalVal = document.createElement("td");
+  tdTotalVal.style.cssText = "border-top:2px solid #e2bc33;";
+  if(tpl.totalBlank){
+    tdTotalVal.appendChild(makeBlankCell(-1, total));
+  } else {
+    tdTotalVal.textContent = total;
+    tdTotalVal.style.cssText += "font-weight:700;font-size:1.1rem;color:var(--gauss-orange);";
+  }
+  trTotal.appendChild(tdTotalVal);
+  body.appendChild(trTotal);
+}
+
+function renderPool(tpl){
+  const pool = document.getElementById("valuesPool");
+  pool.innerHTML = "";
+  const total = getTotal(tpl);
+  const blankValues = tpl.blanks.map(bi => tpl.rows[bi].value);
+  if(tpl.totalBlank) blankValues.push(total);
+  const allValues = shuffle([...blankValues, ...tpl.distractors]);
+  for(let i = 0; i < allValues.length; i++){
+    const val = allValues[i];
+    const chip = document.createElement("div");
+    chip.className = "val-chip";
+    chip.textContent = val;
+    chip.dataset.value = val;
+    chip.dataset.chipId = "chip-" + i + "-" + val;
+    chip.draggable = true;
+    chip.id = "chip-" + i + "-" + val;
+    const placed = Object.values(filledCells);
+    if(placed.includes(val)) chip.classList.add("used");
+    chip.addEventListener("dragstart", function(e) {
+      e.dataTransfer.setData("text/plain", JSON.stringify({chipId: chip.id, value: val}));
+      selectedVal = { chipId: chip.id, value: val };
+    });
+    chip.addEventListener("click", function() {
+      if(solvedCurrent || chip.classList.contains("used")) return;
+      if(selectedVal && selectedVal.chipId === chip.id){
+        chip.classList.remove("selected");
+        selectedVal = null;
+      } else {
+        document.querySelectorAll(".val-chip").forEach(c=>c.classList.remove("selected"));
+        chip.classList.add("selected");
+        selectedVal = { chipId: chip.id, value: val };
+      }
+    });
+    if(selectedVal && selectedVal.chipId === chip.id) chip.classList.add("selected");
+    pool.appendChild(chip);
+  }
+}
+
+function updateBreakdown(){
+  const tpl = gameData[currentRound];
+  const total = tpl.blanks.length + (tpl.totalBlank ? 1 : 0);
+  const filled = Object.values(filledCells).filter(v => v !== null && v !== undefined).length;
+  document.getElementById("scoreBreakdown").innerHTML = "<strong>Completados:</strong> " + filled + " / " + total;
+}
+
+function onCellOver(e, ri){ e.preventDefault(); document.getElementById("blank-"+ri).classList.add("over"); }
+function onCellLeave(e, ri){ document.getElementById("blank-"+ri).classList.remove("over"); }
+
+function onCellDrop(e, ri){
+  if(solvedCurrent) return;
+  e.preventDefault();
+  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+  document.getElementById("blank-"+ri).classList.remove("over");
+  placeValue(ri, data.value, data.chipId);
+}
+
+function onCellClick(ri){
+  if(solvedCurrent) return;
+  const cell = document.getElementById("blank-"+ri);
+  if(filledCells[ri] !== null && filledCells[ri] !== undefined){
+    returnToPool(ri);
+    return;
+  }
+  if(!selectedVal) return;
+  placeValue(ri, selectedVal.value, selectedVal.chipId);
+  selectedVal = null;
+}
+
+function placeValue(ri, value, chipId){
+  if(filledCells[ri] !== null && filledCells[ri] !== undefined) returnToPool(ri, false);
+  filledCells[ri] = value;
+  const chip = document.getElementById(chipId) || document.querySelector('[data-value="'+value+'"]:not(.used)');
+  if(chip){ chip.classList.add("used"); chip.classList.remove("selected"); }
+  document.querySelectorAll(".val-chip").forEach(c=>c.classList.remove("selected"));
+  selectedVal = null;
+  const cell = document.getElementById("blank-"+ri);
+  if(cell){
+    cell.textContent = value;
+    cell.classList.add("filled");
+    cell.classList.remove("over");
+  }
+  updateBreakdown();
+}
+
+function returnToPool(ri, rerender=true){
+  const val = filledCells[ri];
+  if(val === null || val === undefined) return;
+  filledCells[ri] = null;
+  const chip = document.querySelector('[data-value="'+val+'"].used');
+  if(chip) chip.classList.remove("used");
+  if(rerender){
+    const cell = document.getElementById("blank-"+ri);
+    if(cell){
+      cell.textContent = "?";
+      cell.classList.remove("filled","over");
+    }
+    updateBreakdown();
+  }
+}
+
+function checkAnswer(){
+  activarEnPrimerGesto();
+  if(solvedCurrent) return;
+  const tpl = gameData[currentRound];
+  const total = getTotal(tpl);
+  const fb = document.getElementById("feedbackBox");
+  const allDataFilled = tpl.blanks.every(bi => filledCells[bi] !== null && filledCells[bi] !== undefined);
+  const totalFilled = !tpl.totalBlank || (filledCells[-1] !== null && filledCells[-1] !== undefined);
+  if(!allDataFilled || !totalFilled){
+    fb.className = "feedback error";
+    fb.textContent = "Gauss dice: Todavía hay espacios vacíos (?) en la tabla. ¡Completa todos antes de comprobar!";
+    playHintSound();
+    hablar("Todavía hay espacios vacíos. Completa todos antes de comprobar.", 'side');
+    return;
+  }
+  currentAttempts++;
+  document.getElementById("attemptCounter").textContent = "Intentos: " + currentAttempts;
+  let errors = 0;
+  tpl.blanks.forEach(bi => { if(String(filledCells[bi]) !== String(tpl.rows[bi].value)) errors++; });
+  if(tpl.totalBlank && String(filledCells[-1]) !== String(total)) errors++;
+  if(errors === 0){
+    solvedCurrent = true; score++; playCorrectSound();
+    fb.className = "feedback ok";
+    const msgCorr = pick(positiveMessages);
+    fb.textContent = "Gauss dice: " + msgCorr + " ¡Tabla completada correctamente!";
+    document.getElementById("scoreCounter").textContent = "Aciertos: " + score;
+    document.getElementById("checkBtn").style.display = "none";
+    document.getElementById("hintBtn").style.display = "none";
+    document.getElementById("nextBtn").style.display = "inline-block";
+    document.getElementById("progressFill").style.width = ((currentRound+1)/10)*100 + "%";
+    document.querySelectorAll(".blank-cell").forEach(cell => {
+      const key = Number(cell.dataset.blankKey);
+      const correctVal = key === -1 ? total : tpl.rows[key].value;
+      const isCorrect = String(filledCells[key]) === String(correctVal);
+      cell.classList.add(isCorrect ? "correct" : "wrong", "locked");
+    });
+    document.querySelectorAll(".val-chip").forEach(c => c.classList.add("locked"));
+    escribirSide(msgCorr + " Puedes continuar a la siguiente ronda.");
+    hablar(msgCorr, 'side');
+  } else {
+    playWrongSound();
+    fb.className = "feedback error";
+    const msgErr = pick(retryMessages);
+    fb.textContent = "Gauss dice: " + msgErr + " Hay " + errors + " valor" + (errors>1?'es':'') + " incorrecto" + (errors>1?'s':'') + ". ¡Vuelve a intentarlo!";
+    escribirSide(msgErr);
+    hablar(msgErr, 'side');
+    const checkKeys = [...tpl.blanks, ...(tpl.totalBlank ? [-1] : [])];
+    checkKeys.forEach(key => {
+      const cell = document.getElementById("blank-"+key);
+      if(!cell) return;
+      const correctVal = key === -1 ? total : tpl.rows[key].value;
+      if(String(filledCells[key]) !== String(correctVal)){
+        cell.style.borderColor = "#d94d3f";
+        setTimeout(() => { cell.style.borderColor = ""; }, 1200);
+      }
+    });
+  }
+}
+
+function showHint(){
+  activarEnPrimerGesto();
+  playHintSound();
+  const msg = pick(hintMessages);
+  const fb = document.getElementById("feedbackBox");
+  fb.className = "feedback info"; fb.textContent = "Gauss dice: " + msg;
+  escribirSide(msg);
+  hablar(msg, 'side');
+  document.querySelectorAll(".blank-cell").forEach(c => {
+    c.style.boxShadow = "0 0 0 4px rgba(74,103,214,.35)";
+    setTimeout(() => { c.style.boxShadow = ""; }, 2000);
+  });
+}
+
+function nextExercise(){
+  activarEnPrimerGesto();
+  currentRound++;
+  if(currentRound >= 10){ showResults(); }
+  else {
+    renderRound();
+    setTimeout(() => hablar("¡Siguiente ronda! " + pick(sideHints), 'side'), 300);
+  }
+}
+
+function showResults(){
+  showScreen("screenResult");
+  document.getElementById("finalScore").textContent = score + " / 10";
+  let message, speech, stars, good;
+  if(score === 10){ stars = "⭐ ⭐ ⭐"; good = true; message = "¡Increíble! Completaste correctamente las 10 tablas."; speech = "¡Eres un experto en lectura e interpretación de tablas! Cada decisión fue perfecta. ¡Extraordinario!"; }
+  else if(score >= 8){ stars = "⭐ ⭐ ⭐"; good = true; message = "¡Excelente trabajo! Interpretas muy bien las tablas de datos."; speech = "¡Estoy muy orgulloso de ti! Tienes una comprensión sólida de cómo se organizan los datos. ¡Sigue así!"; }
+  else if(score >= 6){ stars = "⭐ ⭐"; good = true; message = "¡Muy bien! Vas avanzando en la lectura de tablas. Sigue practicando."; speech = "Lo hiciste bien. Cada vez te será más fácil relacionar filas y columnas. ¡No te rindas!"; }
+  else { stars = "⭐"; good = false; message = "¡Buen esfuerzo! Recuerda: sigue cada fila horizontalmente para encontrar el dato que falta."; speech = "¡No te preocupes! Lee el encabezado de la columna y el nombre de la fila para encontrar el valor correcto. ¡Vuelve a intentarlo, tú puedes!"; }
+  document.getElementById("resultStars").textContent = stars;
+  document.getElementById("resultMessage").textContent = message;
+  escribirResult("Gauss dice: " + speech);
+  const rv = document.getElementById("resultVozEstado");
+  const rt = document.getElementById("resultVozTexto");
+  if(rv && rt){ rv.className='result-voz activa'; rt.textContent='Gauss hablando...'; }
+  setTimeout(() => { playResultSound(good); hablar(speech, 'result'); }, 600);
+}
+
+function restartGame(){ activarEnPrimerGesto(); startGame(); }
+function NextGame(){
+  window.location.href = "../../Prejuego/PRE_JUEGO_Unidad4/Unidad4_Juego4.html";
+}
+function Menu(){
+      window.location.href = "../../../Ruta de juegos/Pantalla de unidad_R_J_Juegos_unidad4.html";
+    }
+</script>
+</body>
+</html>

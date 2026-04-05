@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluación Final · Aprende Jugando con Gauss</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../../imagenes/GaussEstudia.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gauss-orange:#C25C26;
+      --gauss-brown:#72270E;
+      --gauss-cream:#E1CA9E;
+      --gauss-yellow:#E2BC33;
+      --gauss-green:#73A21D;
+      --gauss-gray:#828C90;
+      --gauss-blue:#4a67d6;
+      --gauss-purple:#9b59d6;
+      --bg1:#fffaf3;
+      --bg2:#fff3da;
+      --white:#fff;
+      --ok:#73A21D;
+      --error:#d94d3f;
+      --info:#4a67d6;
+      --remove:#d95a4a;
+      --shadow:0 12px 30px rgba(114,39,14,.16);
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:18px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      width:100%;min-height:100%;font-family:'Fredoka',sans-serif;
+      background:
+        radial-gradient(circle at top left,rgba(226,188,51,.18),transparent 22%),
+        radial-gradient(circle at 85% 18%,rgba(115,162,29,.18),transparent 18%),
+        linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
+      color:var(--gauss-brown);overflow-x:hidden;
+    }
+    body{padding:16px}
+    .app{max-width:1200px;margin:0 auto;position:relative;z-index:2}
+    .screen{display:none;animation:fadeIn .35s ease}
+    .screen.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    .card{
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(10px);
+      border:2px solid rgba(255,255,255,.8);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+    }
+
+    .welcome{
+      min-height:calc(100vh - 32px);
+      display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;
+    }
+    .welcome-left{padding:34px}
+    .welcome-right{
+      padding:24px;display:flex;align-items:center;justify-content:center;
+      min-height:560px;position:relative;overflow:hidden;
+    }
+    .welcome-right::before{
+      content:"";position:absolute;width:360px;height:360px;border-radius:50%;
+      background:radial-gradient(circle,rgba(226,188,51,.35),rgba(115,162,29,.15));
+      filter:blur(4px);animation:floatBg 4s ease-in-out infinite;
+    }
+    @keyframes floatBg{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;
+      background:linear-gradient(135deg,var(--gauss-yellow),#f0d66f);
+      color:var(--gauss-brown);font-weight:700;margin-bottom:18px;
+      box-shadow:0 8px 20px rgba(226,188,51,.25);animation:pulseChip 2.5s infinite;
+    }
+    @keyframes pulseChip{
+      0%{box-shadow:0 0 0 0 rgba(226,188,51,.4)}
+      70%{box-shadow:0 0 0 10px rgba(226,188,51,0)}
+      100%{box-shadow:0 0 0 0 rgba(226,188,51,0)}
+    }
+    .title{font-size:clamp(2.1rem,5vw,4rem);line-height:1.02;color:var(--gauss-brown);margin-bottom:12px}
+    .subtitle{font-size:clamp(1rem,2vw,1.25rem);color:#7d4a30;line-height:1.55;margin-bottom:18px}
+
+    .gauss-chat{
+      background:linear-gradient(135deg,#fff8ea,#fff2d8);
+      border:2px solid #ffd48e;border-radius:22px;overflow:hidden;max-width:680px;
+      margin-bottom:18px;box-shadow:0 8px 20px rgba(114,39,14,.08);
+    }
+    .gauss-chat-header{
+      display:flex;align-items:center;gap:8px;padding:8px 16px;
+      background:linear-gradient(145deg,#f6b243,#ef8f1e);color:#fff;font-weight:700;font-size:.9rem;
+    }
+    .gauss-chat-body{padding:14px 18px;line-height:1.65;color:#6d442e;min-height:88px}
+    .typing{border-right:3px solid var(--gauss-orange);animation:cursorBlink .7s infinite}
+    @keyframes cursorBlink{0%,100%{border-color:var(--gauss-orange)}50%{border-color:transparent}}
+
+    .voz-estado,.result-voz{
+      display:inline-flex;align-items:center;gap:6px;font-size:.78rem;
+      padding:4px 14px;border-radius:30px;color:#7c5a4c;
+      background:rgba(255,235,186,.5);margin-bottom:20px;
+    }
+    .voz-estado.activa,.result-voz.activa{color:#3a7a10;background:rgba(180,255,120,.25)}
+    .voz-estado.inactiva,.result-voz.inactiva{color:#a35106;background:rgba(255,200,100,.25)}
+    .dot-live{
+      width:9px;height:9px;border-radius:50%;background:#b8ff78;
+      box-shadow:0 0 8px rgba(184,255,120,.9);animation:pulsoLive 1.2s infinite;flex-shrink:0;
+    }
+    @keyframes pulsoLive{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}
+
+    .actions,.bottom-actions,.result-actions,.certificate-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      border:none;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1rem;
+      padding:14px 22px;border-radius:18px;transition:.25s ease;box-shadow:0 10px 20px rgba(0,0,0,.08);
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,var(--gauss-orange),#d7772f);color:#fff}
+    .btn-secondary{background:linear-gradient(135deg,var(--gauss-green),#8bc634);color:#fff}
+    .btn-light{background:#fff;color:var(--gauss-brown)}
+    .btn-warning{background:linear-gradient(135deg,var(--gauss-yellow),#f6d96d);color:var(--gauss-brown)}
+    .btn-danger{background:linear-gradient(135deg,#d95a4a,#bb342c);color:#fff}
+    .btn-blue{background:linear-gradient(135deg,var(--gauss-blue),#6e88e8);color:#fff}
+
+    .gauss-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .gauss-circle,.result-img-wrap,.mini-img-wrap{
+      border-radius:50%;background:linear-gradient(135deg,var(--gauss-yellow),var(--gauss-green));
+      box-shadow:0 12px 28px rgba(114,39,14,.12);transition:filter .3s ease;
+    }
+    .gauss-circle{width:min(370px,78vw);aspect-ratio:1/1;padding:14px;animation:floatOwl 2.4s ease-in-out infinite}
+    .mini-img-wrap{width:120px;height:120px;padding:8px;margin:0 auto 12px}
+    .result-img-wrap{width:130px;height:130px;padding:8px;margin:0 auto 16px}
+    .gauss-circle.talking,.mini-img-wrap.talking,.result-img-wrap.talking{
+      filter:drop-shadow(0 0 14px rgba(226,188,51,.85));
+      animation:floatOwl 2.4s ease-in-out infinite, hablarBoca .22s infinite alternate ease-in-out;
+    }
+    .gauss-img,.mini-img-wrap img,.result-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;background:#fff}
+    .gauss-name{padding:10px 18px;border-radius:999px;background:#fff;color:var(--gauss-brown);font-weight:700;box-shadow:0 8px 20px rgba(114,39,14,.12)}
+    @keyframes hablarBoca{0%{transform:scale(1)}100%{transform:scale(1.03,.97)}}
+    @keyframes floatOwl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+    .topbar{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+    .topbar h2{font-size:clamp(1.4rem,3vw,2.4rem);color:var(--gauss-brown);margin-bottom:6px}
+    .topbar p{color:#77503d}
+    .progress-card{min-width:280px;background:#fff;padding:14px 16px;border-radius:20px;box-shadow:0 10px 20px rgba(0,0,0,.06)}
+    .progress-meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-weight:700;color:#6f4835;font-size:.95rem}
+    .progress-track{height:14px;background:#f0e2c4;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gauss-green),#9ad03b);border-radius:999px;transition:.3s ease}
+
+    .game-screen{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+    .main-panel{padding:22px}.side-panel{padding:18px;position:sticky;top:16px}
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .meta-box{background:#fffaf0;border:2px solid #f1dfb8;border-radius:18px;padding:12px}
+    .meta-box strong{display:block;color:var(--gauss-orange);margin-bottom:5px;font-size:.95rem}
+    .instructions{background:linear-gradient(135deg,#fff8e8,#fffdf7);border:2px dashed var(--gauss-yellow);border-radius:22px;padding:16px;margin-bottom:18px;line-height:1.55;color:#714633}
+
+    .exercise-card{background:linear-gradient(180deg,#fffdf9,#fff7ea);border:2px solid #f1dfb7;border-radius:26px;padding:22px;min-height:550px;position:relative;overflow:hidden}
+    .exercise-title{font-size:1.35rem;color:var(--gauss-brown);margin-bottom:16px;text-align:center}
+
+    .stage-box{background:#fff;border:2px solid #f3e1bb;border-radius:22px;padding:20px;margin-bottom:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.9)}
+    .section-title,.options-title,.drop-title{text-align:center;color:#7b4c37;font-weight:700;margin-bottom:12px}
+    .objects-grid,.visual-row,.options-row,.group-items,.remove-content,.drop-content{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px}
+
+    .object-item,.group-card,.number-card,.operation-card,.result-card-option,.visual-chip,.drop-preview{
+      border-radius:16px;background:linear-gradient(135deg,#fff7df,#fff);display:flex;align-items:center;justify-content:center;
+      box-shadow:0 8px 16px rgba(0,0,0,.06);border:2px solid #f3e1bb;transition:.2s ease;
+    }
+    .object-item,.visual-chip{width:58px;height:58px;font-size:2rem}
+    .visual-chip.alt{background:#DCEBFA}
+    .visual-chip.alt2{background:#E9DDF7}
+    .visual-chip.alt3{background:#DDF4E7}
+    .object-item:hover,.group-card:hover,.number-card:hover,.operation-card:hover,.result-card-option:hover{transform:translateY(-3px)}
+    .object-item.selected,.group-card.selected,.number-card.selected,.operation-card.selected,.result-card-option.selected{
+      outline:4px solid rgba(115,162,29,.22);border-color:var(--gauss-green);transform:scale(1.06);
+    }
+    .object-item.distractor{background:linear-gradient(135deg,#eef1f4,#fff);border-color:#cfd8df}
+    .group-card{min-width:120px;min-height:92px;padding:10px 12px;flex-direction:column;gap:8px}
+    .group-title{font-size:.92rem;font-weight:700;color:#7b4c37}
+    .group-mini{width:28px;height:28px;border-radius:10px;background:#fff8ea;border:2px solid #ecd59f;display:flex;align-items:center;justify-content:center;font-size:1rem}
+    .number-card,.result-card-option{min-width:86px;min-height:78px;font-size:1.4rem;font-weight:700;padding:10px 14px}
+    .operation-card{min-width:150px;min-height:86px;font-size:1.2rem;font-weight:700;padding:10px 14px;text-align:center}
+
+    .drop-zone,.remove-zone{
+      width:min(340px,100%);min-height:92px;margin:0 auto;border-radius:24px;border:3px dashed #d2b366;background:#fff8e7;
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;color:#9d7446;font-size:1rem;font-weight:600;transition:.2s ease;
+    }
+    .remove-zone{border-color:#d88f84;background:#fff0eb;color:#a2574c;min-height:160px}
+    .drop-zone.filled,.remove-zone.filled{border-style:solid;color:var(--gauss-brown);background:#fff}
+    .drop-zone.correct-zone,.remove-zone.correct-zone{border-color:var(--gauss-green)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important;box-shadow:0 0 0 6px rgba(115,162,29,.25)!important}
+    .drop-zone.wrong-zone,.remove-zone.wrong-zone{border-color:var(--error)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important;box-shadow:0 0 0 6px rgba(217,77,63,.2)!important}
+    .drop-summary,.remove-summary{width:100%;margin-top:8px;font-size:.95rem;color:#7b4c37;text-align:center;line-height:1.5}
+    .drop-preview{width:42px;height:42px;font-size:1.35rem}
+
+    .equation-area{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px;margin-top:6px}
+    .equation-number,.equation-symbol{font-size:clamp(2rem,5vw,3rem);font-weight:700;color:var(--gauss-brown);min-width:44px;text-align:center}
+    .story-box{background:linear-gradient(135deg,#fffaf0,#fff);border:2px solid #f1dfb8;border-radius:20px;padding:16px;line-height:1.55;text-align:center;color:#714633;margin-bottom:16px}
+    .market-header{max-width:240px;margin:0 auto 16px;text-align:center;background:linear-gradient(135deg,#E66D4C,#f08b5f);color:#fff;border:2px solid var(--gauss-brown);border-radius:18px 18px 8px 8px;padding:10px 14px;font-weight:700}
+
+    .feedback{min-height:84px;margin-top:18px;border-radius:20px;padding:16px 18px;display:flex;align-items:center;line-height:1.5;font-size:1rem;border:2px solid #ead8af;background:#fff;color:#6d4732}
+    .feedback.ok{background:#f3fff0;border-color:#bfe1ad;color:#2f6d1a}
+    .feedback.error{background:#fff2ef;border-color:#efc0b8;color:#9b2c21}
+    .feedback.info{background:#f7f8ff;border-color:#d8ddff;color:#4252aa}
+
+    .gauss-side{background:linear-gradient(180deg,#fff4d5,#fffdf8);border:2px solid #efd9a0;border-radius:24px;padding:16px;text-align:center}
+    .gauss-side h3{color:var(--gauss-brown);margin-bottom:8px}
+    .side-chat,.result-speech-bubble{background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;border-radius:18px;overflow:hidden;box-shadow:0 4px 12px rgba(114,39,14,.08)}
+    .side-chat{margin-bottom:10px}
+    .side-chat-header,.result-speech-header{display:flex;align-items:center;gap:6px;padding:6px 12px;background:linear-gradient(145deg,#f6b243,#ef8f1e);color:#fff;font-weight:700;font-size:.82rem}
+    .side-chat-body,.result-speech-body{padding:10px 12px;font-size:.9rem;line-height:1.5;color:#6d442e;min-height:52px}
+    .side-badge{display:inline-block;padding:10px 16px;border-radius:999px;background:linear-gradient(135deg,var(--gauss-orange),#d56f2d);color:#fff;font-weight:700;margin-top:6px}
+    .attempts-chip{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:999px;background:#fff;color:var(--gauss-brown);font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.06)}
+    .stars{margin-top:16px;font-size:1.7rem;letter-spacing:4px}
+
+    .result-wrap{min-height:calc(100vh - 32px);display:flex;align-items:center;justify-content:center}
+    .result-card{width:min(920px,100%);padding:30px;text-align:center}
+    .result-title{font-size:clamp(2rem,4vw,3rem);color:var(--gauss-brown);margin-bottom:10px}
+    .result-score{font-size:clamp(2.6rem,6vw,4.6rem);color:var(--gauss-orange);margin-bottom:12px}
+    .result-message{max-width:700px;margin:0 auto 18px;line-height:1.6;font-size:1.08rem;color:#714633}
+    .result-list{max-width:760px;margin:18px auto 0;text-align:left;background:#fffaf0;border:2px solid #f1dfb8;border-radius:20px;padding:16px 18px;line-height:1.6;color:#704934}
+    .certificate-box{max-width:760px;margin:20px auto 0;background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;border-radius:22px;padding:20px;box-shadow:0 8px 20px rgba(114,39,14,.08)}
+    .certificate-box input{width:min(420px,100%);padding:14px 16px;border-radius:14px;border:2px solid #e5c47a;font-family:'Fredoka',sans-serif;font-size:1rem;outline:none;margin:12px auto;display:block;text-align:center}
+
+    .bubble{position:fixed;border-radius:50%;pointer-events:none;opacity:.18;z-index:0;animation:float2 8s ease-in-out infinite;filter:blur(2px)}
+    .b1{width:150px;height:150px;background:var(--gauss-yellow);top:20px;left:18px}
+    .b2{width:130px;height:130px;background:var(--gauss-green);bottom:32px;right:30px;animation-delay:1.4s}
+    .b3{width:110px;height:110px;background:var(--gauss-orange);top:35%;right:12%;animation-delay:2.2s}
+    @keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+    .pulse{animation:pulse .45s ease}.celebrate{animation:celebrate .5s ease}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+    @keyframes celebrate{0%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.15) rotate(-6deg)}50%{transform:scale(1.2) rotate(6deg)}75%{transform:scale(1.1) rotate(-3deg)}100%{transform:scale(1) rotate(0deg)}}
+
+    .floating-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .star{position:absolute;font-size:1.5rem;opacity:0;animation:starBlink ease-in-out infinite;filter:drop-shadow(0 0 7px rgba(255,215,0,.9));user-select:none}
+    .star:nth-child(1){top:4%;left:6%;font-size:1.2rem;animation-duration:2.8s}
+    .star:nth-child(2){top:7%;left:50%;font-size:1.8rem;animation-duration:3.3s;animation-delay:.6s}
+    .star:nth-child(3){top:3%;left:84%;font-size:1.3rem;animation-duration:2.5s;animation-delay:1.1s}
+    .star:nth-child(4){top:91%;left:12%;font-size:1.1rem;animation-duration:3.6s;animation-delay:1.5s}
+    .star:nth-child(5){top:94%;left:72%;font-size:1.4rem;animation-duration:3.0s;animation-delay:.9s}
+    .star:nth-child(6){top:44%;left:1%;font-size:1.0rem;animation-duration:3.2s;animation-delay:2.1s}
+    .star:nth-child(7){top:54%;left:98%;font-size:1.5rem;animation-duration:2.7s;animation-delay:1.8s}
+    .star:nth-child(8){top:22%;left:22%;font-size:1.1rem;animation-duration:4.0s;animation-delay:3.0s}
+    .star:nth-child(9){top:78%;left:60%;font-size:1.3rem;animation-duration:2.9s;animation-delay:4.2s}
+    @keyframes starBlink{0%,100%{opacity:0;transform:scale(.6) rotate(0deg)}40%{opacity:1;transform:scale(1.4) rotate(25deg)}70%{opacity:.7;transform:scale(1.1) rotate(-10deg)}}
+
+    @media(max-width:980px){
+      .welcome,.game-screen{grid-template-columns:1fr}
+      .side-panel{position:static}
+      .meta-grid{grid-template-columns:repeat(2,1fr)}
+      .welcome-right{min-height:420px}
+    }
+    @media(max-width:640px){
+      body{padding:12px}
+      .welcome-left,.main-panel,.side-panel,.result-card{padding:18px}
+      .meta-grid{grid-template-columns:1fr}
+      .result-actions,.bottom-actions,.actions,.certificate-actions{flex-direction:column}
+      .btn{width:100%}
+      .object-item,.visual-chip{width:50px;height:50px;font-size:1.7rem}
+      .number-card,.result-card-option{min-width:70px;min-height:70px;font-size:1.2rem}
+      .operation-card{min-width:100%;min-height:72px}
+    }
+
+    .result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.result-actions .btn {
+  min-width: 200px;
+  text-align: center;
+}
+
+.certificate-box {
+  margin-bottom: 20px;
+}
+
+@media(max-width:640px){
+  .result-actions {
+    flex-direction: column;
+  }
+}
+
+.certificate-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+  </style>
+</head>
+<body>
+  <div class="floating-particles">
+    <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div>
+    <div class="star">✨</div><div class="star">⭐</div><div class="star">✨</div>
+    <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div>
+  </div>
+
+  <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+
+  <audio id="musicaBg" loop preload="auto">
+    <source src="../../musica/enriquecedora1.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="app">
+    <section class="screen active" id="screenWelcome">
+      <div class="welcome">
+        <div class="card welcome-left">
+          <div class="badge">🧪 Evaluación Final · Unidad 2</div>
+          <h1 class="title">Evaluación final con Gauss</h1>
+          <p class="subtitle">Resolverás una evaluación mezclada con los 5 tipos de juegos: unir, quitar, completar operación, problemas del mercado y encontrar el resultado correcto.</p>
+
+          <div class="gauss-chat">
+            <div class="gauss-chat-header"><span class="dot-live"></span><span>Gauss está hablando</span></div>
+            <div class="gauss-chat-body" id="welcomeSpeech">¡Hola! Soy Gauss. En esta evaluación tendrás que resolver 15 retos. Si fallas en alguno, podrás repetirlo, pero solo quienes terminen con 15 aciertos perfectos podrán reclamar su diploma.</div>
+          </div>
+
+          <div class="voz-estado inactiva" id="vozEstado"><span>🔊</span><span id="vozTexto">Cargando voz...</span></div>
+
+          <div class="actions">
+            <button class="btn btn-primary" onclick="startEvaluation()">Comenzar evaluación</button>
+            <button class="btn btn-light" onclick="showInstructions()">Ver instrucciones</button>
+          </div>
+        </div>
+
+        <div class="card welcome-right">
+          <div class="gauss-wrap">
+            <div class="gauss-circle" id="owlWelcome">
+              <img class="gauss-img" src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:6rem\'>🦉</div>';">
+            </div>
+            <div class="gauss-name">Gauss · Evaluación final</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screenGame">
+      <div class="topbar">
+        <div>
+          <h2>Evaluación final · Aprende Jugando con Gauss</h2>
+          <p id="exerciseSubtitle">Resuelve cada reto correctamente</p>
+        </div>
+        <div class="progress-card">
+          <div class="progress-meta"><span id="exerciseCounter">Ejercicio 1 de 15</span><span id="scoreCounter">Puntos: 0</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+
+      <div class="game-screen">
+        <div class="card main-panel">
+          <div class="meta-grid">
+            <div class="meta-box"><strong>Unidad</strong><span>2</span></div>
+            <div class="meta-box"><strong>Ejercicios</strong><span>15</span></div>
+            <div class="meta-box"><strong>Objetivo</strong><span>Evaluar todo lo aprendido</span></div>
+            <div class="meta-box"><strong>Progreso</strong><span id="miniProgress">1/15</span></div>
+          </div>
+
+          <div class="instructions" id="instructionBox"><strong>Instrucciones:</strong> Lee con calma y responde correctamente. Si fallas, deberás repetir el mismo reto hasta resolverlo.</div>
+
+          <div class="exercise-card">
+            <h3 class="exercise-title" id="exerciseTitle">Cargando reto...</h3>
+            <div id="exerciseArea"></div>
+          </div>
+
+          <div class="feedback info" id="feedbackBox">Gauss dice: Lee con calma y responde con atención.</div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-warning" id="checkBtn" onclick="checkAnswer()">Comprobar</button>
+            <button class="btn btn-blue" id="hintBtn" onclick="showHint()">💡 Pista</button>
+            <button class="btn btn-secondary" id="nextBtn" style="display:none;" onclick="nextExercise()">Siguiente ejercicio</button>
+            <button class="btn btn-light" onclick="restartEvaluation()">Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="card side-panel">
+          <div class="gauss-side">
+            <div class="mini-img-wrap" id="owlSide">
+              <img src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:3rem\'>🦉</div>';">
+            </div>
+            <h3>Gauss te acompaña</h3>
+            <div class="side-chat">
+              <div class="side-chat-header"><span class="dot-live"></span><span>Gauss habla</span></div>
+              <div class="side-chat-body" id="sideMessage">Recuerda pensar antes de responder.</div>
+            </div>
+            <div class="side-badge" id="typeBadge">Reto</div>
+            <div class="attempts-chip" id="attemptCounter">Intentos en este reto: 0</div>
+            <div class="stars" id="starsBox">⭐</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screenResult">
+      <div class="result-wrap">
+        <div class="card result-card">
+          <div class="result-img-wrap" id="owlResult">
+            <img src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:4rem\'>🦉</div>';">
+          </div>
+          <h2 class="result-title">¡Terminaste la evaluación!</h2>
+          <div class="result-score" id="finalScore">0 / 15</div>
+          <div class="stars" id="resultStars">⭐ ⭐ ⭐</div>
+          <p class="result-message" id="resultMessage"></p>
+
+          <div class="result-speech-bubble">
+            <div class="result-speech-header"><span class="dot-live"></span><span>Gauss está hablando</span></div>
+            <div class="result-speech-body" id="resultSpeech"></div>
+          </div>
+
+          <div class="result-voz inactiva" id="resultVozEstado"><span>🔊</span><span id="resultVozTexto">Voz lista</span></div>
+
+          <div class="result-list" id="resultSummary"></div>
+          <div class="certificate-box" id="certificateBox" style="display:none;">
+            <h3 style="margin-bottom:10px;">🏆 Reclamar diploma</h3>
+            <p>Escribe tu nombre completo para colocarlo en tu diploma.</p>
+            <input type="text" id="studentName" placeholder="Escribe tu nombre completo">
+            <div class="certificate-actions">
+              <button class="btn btn-primary" onclick="claimCertificate()">Reclamar diploma</button>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-primary" onclick="restartEvaluation()">Intentar otra vez</button>
+            <button class="btn btn-light" onclick="Menu()">Volver al inicio</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+/* ═══════════════════════════════════════
+   AUDIO Y VOZ
+═══════════════════════════════════════ */
+const bgAudio=document.getElementById('musicaBg');
+const vozEstadoEl=document.getElementById('vozEstado');
+const vozTextoEl=document.getElementById('vozTexto');
+const resultVozEstado=document.getElementById('resultVozEstado');
+const resultVozTexto=document.getElementById('resultVozTexto');
+const owlWelcome=document.getElementById('owlWelcome');
+const owlSide=document.getElementById('owlSide');
+const owlResult=document.getElementById('owlResult');
+let vozGauss=null,vocesListas=false,vozActivada=false,primerGesto=false,autoInicioIntentado=false,musicStarted=false,speakingNow=false,audioCtx=null;
+let escribiendoInt=null,escribiendoSideInt=null,escribiendoResultInt=null,watchdogTimer=null;
+
+function getAudioCtx(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function playCorrectSound(){try{const ctx=getAudioCtx();[523.25,659.25,783.99,1046.5].forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=freq;const t=ctx.currentTime+i*.1;gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.25,t+.02);gain.gain.exponentialRampToValueAtTime(.001,t+.4);osc.start(t);osc.stop(t+.4);});}catch(e){}}
+function playWrongSound(){try{const ctx=getAudioCtx();const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sawtooth';osc.frequency.setValueAtTime(300,ctx.currentTime);osc.frequency.linearRampToValueAtTime(150,ctx.currentTime+.4);gain.gain.setValueAtTime(.22,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.45);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.45);}catch(e){}}
+function playHintSound(){try{const ctx=getAudioCtx();const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='triangle';osc.frequency.value=880;gain.gain.setValueAtTime(.18,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.5);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.5);}catch(e){}}
+function playResultSound(good){try{const ctx=getAudioCtx();if(good){[523,659,784,1047,784,1047].forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=freq;const t=ctx.currentTime+i*.13;gain.gain.setValueAtTime(.22,t);gain.gain.exponentialRampToValueAtTime(.001,t+.35);osc.start(t);osc.stop(t+.35);});}else{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='triangle';osc.frequency.setValueAtTime(400,ctx.currentTime);osc.frequency.linearRampToValueAtTime(200,ctx.currentTime+.6);gain.gain.setValueAtTime(.2,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.65);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.65);}}catch(e){}}
+function actualizarEstadoVoz(estado,msg){ if(vozEstadoEl&&vozTextoEl){vozEstadoEl.className='voz-estado '+estado;vozTextoEl.textContent=msg;} if(resultVozEstado&&resultVozTexto){resultVozEstado.className='result-voz '+estado;resultVozTexto.textContent=msg;} }
+function activarHabla(){[owlWelcome,owlSide,owlResult].forEach(el=>el&&el.classList.add('talking'));}
+function desactivarHabla(){[owlWelcome,owlSide,owlResult].forEach(el=>el&&el.classList.remove('talking'));}
+function cargarVoces(){ if(!('speechSynthesis' in window)) return false; const lista=window.speechSynthesis.getVoices(); if(!lista.length) return false; vozGauss=lista.find(v=>/Monica|Paulina|Helena|Sandra|Sofia|Sabina|Luciana/i.test(v.name)&&/es/i.test(v.lang))||lista.find(v=>/es-HN/i.test(v.lang))||lista.find(v=>/es-MX/i.test(v.lang))||lista.find(v=>/es-ES/i.test(v.lang))||lista.find(v=>/^es/i.test(v.lang))||lista[0]; vocesListas=true; return true; }
+if('speechSynthesis' in window){cargarVoces();window.speechSynthesis.onvoiceschanged=()=>cargarVoces();actualizarEstadoVoz('inactiva','Toca la pantalla si el navegador bloquea la voz');} else {actualizarEstadoVoz('inactiva','Tu navegador no soporta voz');}
+function escribirEnEl(elId,texto,vel=20){return new Promise(resolve=>{const el=document.getElementById(elId);if(!el){resolve();return;} if(escribiendoInt) clearInterval(escribiendoInt); el.textContent='';el.classList.add('typing');let i=0;escribiendoInt=setInterval(()=>{el.textContent+=texto.charAt(i);i++;if(i>=texto.length){clearInterval(escribiendoInt);escribiendoInt=null;el.classList.remove('typing');resolve();}},vel);});}
+function escribirSide(texto){const el=document.getElementById('sideMessage');if(!el) return;if(escribiendoSideInt) clearInterval(escribiendoSideInt);el.textContent='';el.classList.add('typing');let i=0;escribiendoSideInt=setInterval(()=>{el.textContent+=texto.charAt(i);i++;if(i>=texto.length){clearInterval(escribiendoSideInt);escribiendoSideInt=null;el.classList.remove('typing');}},20);}
+function escribirResult(texto){const el=document.getElementById('resultSpeech');if(!el) return;if(escribiendoResultInt) clearInterval(escribiendoResultInt);el.textContent='';el.classList.add('typing');let i=0;escribiendoResultInt=setInterval(()=>{el.textContent+=texto.charAt(i);i++;if(i>=texto.length){clearInterval(escribiendoResultInt);escribiendoResultInt=null;el.classList.remove('typing');}},22);}
+async function hablar(texto,target){ if(!texto) return; if(target==='side') escribirSide(texto); else if(target==='result') escribirResult(texto); else escribirEnEl(target||'welcomeSpeech',texto); if(!vozActivada||!('speechSynthesis' in window)) return; if(speakingNow) window.speechSynthesis.cancel(); if(!vocesListas) cargarVoces(); await new Promise(r=>setTimeout(r,120)); const msg=new SpeechSynthesisUtterance(texto); msg.lang=vozGauss?.lang||'es-ES'; msg.rate=1; msg.pitch=1.35; msg.volume=1; if(vozGauss) msg.voice=vozGauss; speakingNow=true; activarHabla(); actualizarEstadoVoz('activa','Gauss está hablando...'); if(watchdogTimer) clearTimeout(watchdogTimer); watchdogTimer=setTimeout(()=>{speakingNow=false;desactivarHabla();actualizarEstadoVoz('activa','Voz lista ✓');},14000); const resumeIv=setInterval(()=>{if(window.speechSynthesis.paused) window.speechSynthesis.resume();},1000); const limpiar=()=>{clearInterval(resumeIv);clearTimeout(watchdogTimer);speakingNow=false;desactivarHabla();}; msg.onend=()=>{limpiar();actualizarEstadoVoz('activa','Voz lista ✓');}; msg.onerror=(e)=>{limpiar(); if(e.error!=='interrupted'&&e.error!=='canceled') actualizarEstadoVoz('inactiva','Toca la pantalla para activar voz');}; try{window.speechSynthesis.speak(msg);}catch(e){limpiar();}}
+function startMusic(){ if(!bgAudio||musicStarted) return; bgAudio.volume=.3; bgAudio.play().then(()=>musicStarted=true).catch(()=>{}); }
+function arrancarAutomaticamente(){ if(autoInicioIntentado) return; autoInicioIntentado=true; vozActivada=true; primerGesto=true; if(!vocesListas) cargarVoces(); actualizarEstadoVoz('activa','Intentando iniciar audio...'); startMusic(); setTimeout(()=>hablar('¡Hola! En esta evaluación encontrarás retos de suma, resta, operaciones y problemas. Si completas los 15 ejercicios correctamente, podrás reclamar tu diploma.', 'welcomeSpeech'),500); }
+function activarEnPrimerGesto(){ startMusic(); if(primerGesto) return; primerGesto=true; vozActivada=true; if(!vocesListas) cargarVoces(); actualizarEstadoVoz('activa','Voz lista ✓'); }
+['click','touchstart'].forEach(evt=>document.addEventListener(evt,()=>activarEnPrimerGesto(),{once:true}));
+window.addEventListener('load',()=>arrancarAutomaticamente());
+
+/* ═══════════════════════════════════════
+   MENSAJES
+═══════════════════════════════════════ */
+const positiveMessages=["¡Muy bien! Respuesta correcta.","¡Excelente! Lo resolviste perfectamente.","¡Fantástico! Vas avanzando muy bien.","¡Correcto! Sigue así.","¡Genial! Estás demostrando lo aprendido."];
+const retryMessages=["Intenta otra vez con más atención.","Casi. Revisa con calma.","No pasa nada. Repite el reto y piensa paso a paso.","Observa mejor los detalles antes de responder.","Lee de nuevo y vuelve a intentarlo."];
+const sideHintsCommon=["Lee con calma antes de responder.","Piensa paso a paso.","Usa la pista visual si la hay.","Fíjate si la cantidad aumenta o disminuye.","Primero observa, luego responde."];
+const hintMessages={
+  union:["Pista: une solo lo que sí corresponde.","Pista: no todos los objetos cuentan.","Pista: después de unir, cuenta el total."],
+  remove:["Pista: quita solo lo indicado.","Pista: piensa qué sale y qué queda.","Pista: la cantidad final debe ser menor."],
+  operation:["Pista: si es suma, el resultado crece.","Pista: si es resta, el resultado disminuye.","Pista: cuenta los objetos para confirmar."],
+  market:["Pista: 'compró' o 'agregó' suele indicar suma.","Pista: 'vendió' o 'quitó' suele indicar resta.","Pista: piensa qué le pasa a la cantidad."],
+  result:["Pista: elimina las opciones imposibles.","Pista: compara el resultado con los números de la operación.","Pista: usa los objetos para verificar."]
+};
+
+/* ═══════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════ */
+const TOTAL_EXERCISES=15;
+let gameData=[]; let currentExercise=0; let score=0; let solvedCurrent=false; let currentAttempts=0; let failedAnyExercise=false;
+let selectedValue=null; let selectedElements=new Set(); let selectedAnswer=null;
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(arr){const copy=[...arr];for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}return copy;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function updateProgress(){
+  const n=currentExercise+1;
+  document.getElementById('exerciseCounter').textContent=`Ejercicio ${n} de ${TOTAL_EXERCISES}`;
+  document.getElementById('scoreCounter').textContent=`Puntos: ${score}`;
+  document.getElementById('miniProgress').textContent=`${n}/${TOTAL_EXERCISES}`;
+  document.getElementById('progressFill').style.width=`${(currentExercise/TOTAL_EXERCISES)*100}%`;
+  document.getElementById('attemptCounter').textContent=`Intentos en este reto: ${currentAttempts}`;
+  const starCount=Math.max(1,Math.min(3,Math.ceil((score+1)/5)));
+  document.getElementById('starsBox').textContent='⭐ '.repeat(starCount).trim();
+}
+function setFeedback(type,msg){const box=document.getElementById('feedbackBox');box.className='feedback '+type;box.textContent='Gauss dice: '+msg;}
+function showInstructions(){activarEnPrimerGesto();alert('La evaluación tiene 15 retos mezclados. Si fallas, deberás repetir el mismo ejercicio hasta resolverlo correctamente. Solo si completas los 15 retos perfectos podrás reclamar tu diploma.');hablar('Recuerda: para reclamar el diploma debes completar los 15 retos correctamente.', 'side');}
+function Menu(){
+  window.location.href = "../../Ruta de juegos/Pantalla de unidad_R_J_Unidades.html";
+}
+function restartEvaluation(){failedAnyExercise=false;score=0;currentExercise=0;startEvaluation();}
+
+/* ═══════════════════════════════════════
+   GENERADOR DE EJERCICIOS
+═══════════════════════════════════════ */
+const itemThemesUnion=[
+  {title:'Une solo las manzanas.',hint:'Debes unir manzanas, no peras.',good:['🍎','🍏'],bad:['🍐']},
+  {title:'Une solo las estrellas.',hint:'Las lunas no cuentan.',good:['⭐','🌟'],bad:['🌙']},
+  {title:'Une solo las flores.',hint:'Las hojas secas no se unen.',good:['🌸','🌼'],bad:['🍂']}
+];
+const itemThemesRemove=[
+  {title:'Quita solo las pelotas.',hint:'Los carros no se quitan.',good:['⚽','🏀'],bad:['🚗']},
+  {title:'Quita solo los peces.',hint:'Los caracoles no se quitan.',good:['🐟'],bad:['🐌']},
+  {title:'Quita solo los lápices.',hint:'Los clips no se quitan.',good:['✏️'],bad:['📎']}
+];
+const opThemes=[
+  {icon:'🧩',altClass:'',name:'piezas'},{icon:'🎈',altClass:'alt',name:'globos'},{icon:'🧸',altClass:'alt2',name:'ositos'},{icon:'🍎',altClass:'alt3',name:'manzanas'}
+];
+const marketProblems=[
+  {story:'Ana compró 2 tomates y luego compró 3 tomates más. ¿Qué operación resuelve el problema?',icon:'🍅',altClass:'',a:2,b:3,op:'2 + 3',correct:'2 + 3',options:['2 + 3','3 - 2','2 + 2']},
+  {story:'Luis tenía 6 naranjas y vendió 2. ¿Qué operación resuelve el problema?',icon:'🍊',altClass:'alt',a:6,b:2,op:'6 - 2',correct:'6 - 2',options:['6 + 2','6 - 2','5 - 2']},
+  {story:'Rosa compró 3 quesos y luego compró 2 más. ¿Qué operación resuelve el problema?',icon:'🧀',altClass:'alt2',a:3,b:2,op:'3 + 2',correct:'3 + 2',options:['2 + 2','3 + 2','3 - 2']}
+];
+const resultBase=[
+  {a:3,b:1,op:'+',icon:'🪀',altClass:''},{a:5,b:2,op:'-',icon:'🪁',altClass:'alt'},{a:4,b:2,op:'+',icon:'🎲',altClass:'alt2'},{a:7,b:4,op:'-',icon:'🎯',altClass:'alt3'}
+];
+
+function createOptions(correct,min=0,max=12){const out=[correct];while(out.length<3){let fake=correct+rand(-2,2);if(fake<min||fake>max||fake===correct||out.includes(fake)) fake=rand(min,max);if(fake!==correct&&!out.includes(fake)) out.push(fake);}return shuffle(out);}
+function createUnionExercise(){const theme=pick(itemThemesUnion);const totalGood=rand(4,6);const totalBad=rand(1,2);const data=[];for(let i=0;i<totalGood;i++) data.push({emoji:pick(theme.good),good:true});for(let i=0;i<totalBad;i++) data.push({emoji:pick(theme.bad),good:false});return {kind:'union',title:theme.title,hint:theme.hint,data:shuffle(data),total:totalGood,options:createOptions(totalGood,1,10),subtitle:'Une las cantidades',instruction:'Selecciona solo los objetos correctos y luego marca el total.'};}
+function createRemoveExercise(){const theme=pick(itemThemesRemove);const removeCount=rand(1,3),keepCount=rand(2,4);const data=[];for(let i=0;i<removeCount;i++) data.push({emoji:pick(theme.good),remove:true});for(let i=0;i<keepCount;i++) data.push({emoji:pick(theme.bad),remove:false});return {kind:'remove',title:theme.title,hint:theme.hint,data:shuffle(data),removeCount,remainingCount:keepCount,options:createOptions(keepCount,1,10),subtitle:'Quita los objetos',instruction:'Quita solo los objetos indicados y luego marca cuántos quedan.'};}
+function createOperationExercise(){const theme=pick(opThemes);const useSum=Math.random()>.5;const a=useSum?rand(1,6):rand(4,10);const b=useSum?rand(1,4):rand(1,Math.min(5,a-1));const correct=useSum?a+b:a-b;return {kind:'operation',title:`Completa: ${a} ${useSum?'+':'-'} ${b} = ?`,hint:'Observa la operación y la pista visual.',a,b,op:useSum?'+':'-',correct,icon:theme.icon,altClass:theme.altClass,options:createOptions(correct,0,12),subtitle:'Completa la operación',instruction:'Mira la operación y elige el resultado correcto.'};}
+function createMarketExercise(){const p={...pick(marketProblems)};p.kind='market';p.title='Lee el problema y encuentra la operación';p.hint='Piensa si en la historia están agregando o quitando.';p.subtitle='Problemas del mercado';p.instruction='Lee el problema y selecciona la operación correcta.';p.options=shuffle(p.options);return p;}
+function createResultExercise(){const ex={...pick(resultBase)};const correct=ex.op==='+'?ex.a+ex.b:ex.a-ex.b;return {...ex,kind:'result',title:`Encuentra el resultado de ${ex.a} ${ex.op} ${ex.b}`,hint:'Piensa si la operación suma o resta.',correct,options:createOptions(correct,0,12),subtitle:'Encuentra el resultado correcto',instruction:'Selecciona el resultado correcto usando la pista visual.'};}
+function generateEvaluationSet(){
+  gameData=[createUnionExercise(),createUnionExercise(),createUnionExercise(),createRemoveExercise(),createRemoveExercise(),createRemoveExercise(),createOperationExercise(),createOperationExercise(),createOperationExercise(),createMarketExercise(),createMarketExercise(),createMarketExercise(),createResultExercise(),createResultExercise(),createResultExercise()];
+  gameData=shuffle(gameData);
+}
+
+/* ═══════════════════════════════════════
+   START
+═══════════════════════════════════════ */
+function startEvaluation(){activarEnPrimerGesto();generateEvaluationSet();currentExercise=0;score=0;failedAnyExercise=false;renderExercise();showScreen('screenGame');setTimeout(()=>hablar('¡Comencemos! Resuelve cada reto correctamente. Recuerda: el diploma solo se desbloquea con 15 aciertos.', 'side'),400);}
+
+/* ═══════════════════════════════════════
+   RENDER DE EJERCICIOS
+═══════════════════════════════════════ */
+function renderExercise(){
+  const ex=gameData[currentExercise];
+  solvedCurrent=false; currentAttempts=0; selectedValue=null; selectedElements=new Set(); selectedAnswer=null;
+  updateProgress();
+  document.getElementById('exerciseTitle').textContent=ex.title;
+  document.getElementById('exerciseSubtitle').textContent=ex.subtitle;
+  document.getElementById('instructionBox').innerHTML=`<strong>Instrucciones:</strong> ${ex.instruction}`;
+  document.getElementById('typeBadge').textContent=ex.subtitle;
+  document.getElementById('sideMessage').textContent=ex.hint;
+  setFeedback('info',pick(sideHintsCommon));
+  document.getElementById('checkBtn').style.display='inline-block';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('hintBtn').style.display='inline-block';
+  renderByKind(ex);
+}
+
+function renderByKind(ex){
+  const area=document.getElementById('exerciseArea');
+  if(ex.kind==='union') return renderUnion(area,ex);
+  if(ex.kind==='remove') return renderRemove(area,ex);
+  if(ex.kind==='operation') return renderOperation(area,ex);
+  if(ex.kind==='market') return renderMarket(area,ex);
+  if(ex.kind==='result') return renderResultGame(area,ex);
+}
+
+function renderUnion(area,ex){
+  area.innerHTML=`
+    <div class="stage-box">
+      <div class="objects-grid" id="unionObjects"></div>
+    </div>
+    <div class="drop-title">Caja de unión</div>
+    <div class="drop-zone" id="unionDrop"><div><div class="drop-content" id="unionDropContent"></div><div class="drop-summary" id="unionSummary">Cantidad unida: 0</div></div></div>
+    <div class="options-title">¿Cuál es el total correcto?</div>
+    <div class="options-row" id="unionOptions"></div>`;
+  const objects=document.getElementById('unionObjects');
+  ex.data.forEach((item,idx)=>{const card=document.createElement('div');card.className='object-item'+(item.good?'':' distractor');card.textContent=item.emoji;card.onclick=()=>toggleSelect(idx,card);objects.appendChild(card);});
+  ex.options.forEach(n=>{const card=document.createElement('div');card.className='number-card';card.textContent=n;card.onclick=()=>selectCardValue(n,card,'.number-card','unionDrop');document.getElementById('unionOptions').appendChild(card);});
+}
+function renderRemove(area,ex){
+  area.innerHTML=`
+    <div class="stage-box"><div class="section-title">Caja principal</div><div class="objects-grid" id="removeObjects"></div></div>
+    <div class="section-title">Zona para quitar</div>
+    <div class="remove-zone" id="removeZone"><div><div class="remove-content" id="removeContent"></div><div class="remove-summary" id="removeSummary">Quitados: 0<br>Quedan: ${ex.data.length}</div></div></div>
+    <div class="options-title">¿Cuántos quedan?</div>
+    <div class="options-row" id="removeOptions"></div>`;
+  const objects=document.getElementById('removeObjects');
+  ex.data.forEach((item,idx)=>{const card=document.createElement('div');card.className='object-item'+(item.remove?'':' distractor');card.textContent=item.emoji;card.onclick=()=>toggleSelect(idx,card);objects.appendChild(card);});
+  ex.options.forEach(n=>{const card=document.createElement('div');card.className='number-card';card.textContent=n;card.onclick=()=>selectCardValue(n,card,'.number-card','removeZone');document.getElementById('removeOptions').appendChild(card);});
+}
+function renderOperation(area,ex){
+  area.innerHTML=`
+    <div class="stage-box">
+      <div class="visual-row" id="operationVisual"></div>
+      <div class="equation-area">
+        <div class="equation-number">${ex.a}</div><div class="equation-symbol">${ex.op}</div><div class="equation-number">${ex.b}</div><div class="equation-symbol">=</div>
+        <div class="drop-zone" id="operationDrop">?</div>
+      </div>
+    </div>
+    <div class="options-title">Resultados disponibles</div>
+    <div class="options-row" id="operationOptions"></div>`;
+  const visual=document.getElementById('operationVisual');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;visual.appendChild(c);} const op=document.createElement('div');op.className='visual-chip';op.textContent=ex.op;visual.appendChild(op); for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;if(ex.op==='-') c.style.opacity='.35';visual.appendChild(c);} 
+  ex.options.forEach(n=>{const card=document.createElement('div');card.className='result-card-option';card.textContent=n;card.onclick=()=>selectCardValue(n,card,'.result-card-option','operationDrop');document.getElementById('operationOptions').appendChild(card);});
+}
+function renderMarket(area,ex){
+  area.innerHTML=`
+    <div class="stage-box">
+      <div class="market-header">🛒 Puesto del mercado</div>
+      <div class="visual-row" id="marketVisual"></div>
+      <div class="story-box">${ex.story}</div>
+      <div class="drop-zone" id="marketDrop">Arrastra aquí la operación correcta</div>
+    </div>
+    <div class="options-title">Operaciones disponibles</div>
+    <div class="options-row" id="marketOptions"></div>`;
+  const visual=document.getElementById('marketVisual');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;visual.appendChild(c);} const sign=document.createElement('div');sign.className='visual-chip';sign.textContent=ex.correct.includes('+')?'+':'−';visual.appendChild(sign); for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;if(ex.correct.includes('-')) c.style.opacity='.35';visual.appendChild(c);} 
+  ex.options.forEach(txt=>{const card=document.createElement('div');card.className='operation-card';card.textContent=txt;card.onclick=()=>selectCardValue(txt,card,'.operation-card','marketDrop');document.getElementById('marketOptions').appendChild(card);});
+}
+function renderResultGame(area,ex){
+  area.innerHTML=`
+    <div class="stage-box">
+      <div class="visual-row" id="resultVisual"></div>
+      <div class="equation-area">
+        <div class="equation-number">${ex.a}</div><div class="equation-symbol">${ex.op}</div><div class="equation-number">${ex.b}</div><div class="equation-symbol">=</div>
+        <div class="drop-zone" id="resultDrop">?</div>
+      </div>
+    </div>
+    <div class="options-title">Resultados disponibles</div>
+    <div class="options-row" id="resultOptions"></div>`;
+  const visual=document.getElementById('resultVisual');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;visual.appendChild(c);} const op=document.createElement('div');op.className='visual-chip';op.textContent=ex.op;visual.appendChild(op); for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`visual-chip ${ex.altClass}`.trim();c.textContent=ex.icon;if(ex.op==='-') c.style.opacity='.35';visual.appendChild(c);} 
+  ex.options.forEach(n=>{const card=document.createElement('div');card.className='result-card-option';card.textContent=n;card.onclick=()=>selectCardValue(n,card,'.result-card-option','resultDrop');document.getElementById('resultOptions').appendChild(card);});
+}
+
+function toggleSelect(idx,card){ if(solvedCurrent) return; if(selectedElements.has(idx)){selectedElements.delete(idx);card.classList.remove('selected');} else {selectedElements.add(idx);card.classList.add('selected');} const ex=gameData[currentExercise]; if(ex.kind==='union') updateUnionPreview(ex); if(ex.kind==='remove') updateRemovePreview(ex); }
+function selectCardValue(value,card,selector,dropId){ if(solvedCurrent) return; document.querySelectorAll(selector).forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedValue=value; const drop=document.getElementById(dropId); if(drop){drop.textContent=value;drop.classList.add('filled','pulse');setTimeout(()=>drop.classList.remove('pulse'),350);} }
+function updateUnionPreview(ex){const content=document.getElementById('unionDropContent'),summary=document.getElementById('unionSummary'),drop=document.getElementById('unionDrop'); content.innerHTML=''; let total=0; [...selectedElements].forEach(i=>{const item=ex.data[i]; total++; const p=document.createElement('div');p.className='drop-preview';p.textContent=item.emoji;content.appendChild(p);}); summary.textContent=`Cantidad unida: ${total}`; if(total>0) drop.classList.add('filled'); else drop.classList.remove('filled'); }
+function updateRemovePreview(ex){const content=document.getElementById('removeContent'),summary=document.getElementById('removeSummary'),zone=document.getElementById('removeZone'); content.innerHTML=''; let removed=0; [...selectedElements].forEach(i=>{const item=ex.data[i]; removed++; const p=document.createElement('div');p.className='drop-preview';p.textContent=item.emoji;content.appendChild(p);}); summary.innerHTML=`Quitados: ${removed}<br>Quedan: ${ex.data.length-removed}`; if(removed>0) zone.classList.add('filled'); else zone.classList.remove('filled'); }
+
+/* ═══════════════════════════════════════
+   VALIDACIÓN
+═══════════════════════════════════════ */
+function checkAnswer(){
+  activarEnPrimerGesto();
+  const ex=gameData[currentExercise];
+  currentAttempts++; document.getElementById('attemptCounter').textContent=`Intentos en este reto: ${currentAttempts}`;
+  let ok=false;
+  if(ex.kind==='union') ok=validateUnion(ex);
+  if(ex.kind==='remove') ok=validateRemove(ex);
+  if(ex.kind==='operation') ok=selectedValue===ex.correct;
+  if(ex.kind==='market') ok=selectedValue===ex.correct;
+  if(ex.kind==='result') ok=selectedValue===ex.correct;
+
+  if(ok){
+    solvedCurrent=true; score++; playCorrectSound();
+    const msg=pick(positiveMessages); setFeedback('ok',msg); hablar(msg,'side');
+    markCorrect(ex);
+    document.getElementById('checkBtn').style.display='none';
+    document.getElementById('nextBtn').style.display='inline-block';
+  }else{
+    failedAnyExercise=true; playWrongSound();
+    const msg=pick(retryMessages); setFeedback('error',msg); hablar(msg,'side');
+    markWrong(ex);
+  }
+}
+function validateUnion(ex){ if(selectedElements.size===0||selectedValue===null) {playHintSound(); setFeedback('error','Primero une objetos y elige un total.'); hablar('Primero une los objetos correctos y después elige el total.', 'side'); return false;} const chosen=[...selectedElements].map(i=>ex.data[i]); const onlyGood=chosen.every(x=>x.good); return onlyGood && chosen.length===ex.total && selectedValue===ex.total; }
+function validateRemove(ex){ if(selectedElements.size===0||selectedValue===null){playHintSound(); setFeedback('error','Primero quita objetos y luego elige cuántos quedan.'); hablar('Primero quita los objetos correctos y luego elige cuántos quedan.', 'side'); return false;} const chosen=[...selectedElements].map(i=>ex.data[i]); const onlyRemove=chosen.every(x=>x.remove); return onlyRemove && chosen.length===ex.removeCount && selectedValue===ex.remainingCount; }
+function markCorrect(ex){ if(ex.kind==='union'){document.getElementById('unionDrop').classList.add('correct-zone');}
+  if(ex.kind==='remove'){document.getElementById('removeZone').classList.add('correct-zone');}
+  if(ex.kind==='operation'){document.getElementById('operationDrop').classList.add('correct-zone');}
+  if(ex.kind==='market'){document.getElementById('marketDrop').classList.add('correct-zone');}
+  if(ex.kind==='result'){document.getElementById('resultDrop').classList.add('correct-zone');}
+}
+function markWrong(ex){ if(ex.kind==='union'){document.getElementById('unionDrop').classList.add('wrong-zone');}
+  if(ex.kind==='remove'){document.getElementById('removeZone').classList.add('wrong-zone');}
+  if(ex.kind==='operation'){document.getElementById('operationDrop').classList.add('wrong-zone');}
+  if(ex.kind==='market'){document.getElementById('marketDrop').classList.add('wrong-zone');}
+  if(ex.kind==='result'){document.getElementById('resultDrop').classList.add('wrong-zone');}
+}
+function showHint(){ const ex=gameData[currentExercise]; playHintSound(); const msg=pick(hintMessages[ex.kind]); setFeedback('info',msg); hablar(msg,'side'); }
+function nextExercise(){ if(!solvedCurrent) return; currentExercise++; if(currentExercise>=TOTAL_EXERCISES) return finishEvaluation(); renderExercise(); }
+
+/* ═══════════════════════════════════════
+   RESULTADOS Y DIPLOMA
+═══════════════════════════════════════ */
+function finishEvaluation(){
+  showScreen('screenResult');
+  document.getElementById('finalScore').textContent=`${score} / ${TOTAL_EXERCISES}`;
+  const perfect=score===TOTAL_EXERCISES && !failedAnyExercise;
+  document.getElementById('resultStars').textContent= perfect ? '⭐ ⭐ ⭐' : (score>=10 ? '⭐ ⭐' : '⭐');
+  const msg= perfect
+    ? '¡Felicidades! Completaste toda la evaluación con 15 aciertos. Has desbloqueado el diploma final.'
+    : 'Terminaste la evaluación, pero para reclamar el diploma debes completar los 15 ejercicios correctamente.';
+  document.getElementById('resultMessage').textContent=msg;
+  document.getElementById('resultSummary').innerHTML=`<strong>Resumen:</strong><br>• Ejercicios resueltos: ${TOTAL_EXERCISES}<br>• Aciertos: ${score}<br>• Intentos perfectos requeridos para diploma: 15/15<br>• Estado del diploma: ${perfect ? 'Desbloqueado ✅' : 'Bloqueado ❌'}`;
+  document.getElementById('certificateBox').style.display= perfect ? 'block' : 'none';
+  const speech= perfect
+    ? '¡Lo lograste! Estoy muy orgulloso de ti. Escribe tu nombre y reclama tu diploma.'
+    : 'Buen trabajo. Ahora vuelve a intentarlo hasta lograr los 15 aciertos y así podrás reclamar tu diploma.';
+  escribirResult(speech); hablar(speech,'result'); playResultSound(perfect);
+}
+function claimCertificate(){
+  const name=document.getElementById('studentName').value.trim();
+  if(!name){ alert('Escribe tu nombre completo para reclamar tu diploma.'); hablar('Por favor, escribe tu nombre completo para reclamar tu diploma.', 'result'); return; }
+  localStorage.setItem('gauss_nombre_diploma', name);
+  hablar(`¡Felicidades, ${name}! Tu diploma ha sido reclamado con éxito.`, 'result');
+  window.location.href = "../Diplomas/Diploma2.html";
+}
+</script>
+</body>
+</html>

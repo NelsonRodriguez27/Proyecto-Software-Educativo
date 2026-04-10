@@ -615,6 +615,7 @@
       </div>
       <div style="margin-top:22px;">
         <button class="btn" id="btnMenu">Volver al menú</button>
+        <button class="btn" onclick="Manual()">Manual de usuario</button>
       </div>
     </div>
 
@@ -819,6 +820,10 @@
         try { window.location.href = "../../Inicio_Retorno.html"; } catch(e) {}
       }, 1400);
     });
+    
+     function Manual() {
+      window.location.href = "../Contenido/Manual/Manual.html";
+    }
   </script>
 </body>
 </html>

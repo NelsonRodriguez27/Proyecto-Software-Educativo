@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Objetivos</title>
+ <link rel="icon" type="image/png" sizes="32x32" href="../imagenes/GaussEstudia.png">
+ <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+ <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+   --c1: #C25C26;
+   --c2: #72270E;
+   --c3: #E1CA9E;
+   --c4: #E2BC33;
+   --c5: #73A21D;
+   --c6: #828C90;
+   --bg: #f8f4ec;
+   --card: #fffdf8;
+   --text: #5b2410;
+   --muted: #7c5a4c;
+   --shadow-soft: 0 20px 30px -10px rgba(114, 39, 14, 0.15);
+   --shadow-bounce: 0 25px 35px -8px rgba(162, 114, 30, 0.25);
+   --radius-xl: 32px;
+   --radius-lg: 26px;
+  }
+
+  body {
+   font-family: 'Fredoka', sans-serif;
+   background: radial-gradient(circle at 0% 10%, rgba(226,188,51,0.2) 0%, transparent 25%),
+         radial-gradient(circle at 100% 90%, rgba(115,162,29,0.18) 0%, transparent 28%),
+         linear-gradient(145deg, #fdf9f0 0%, #f2e7d5 100%);
+   color: var(--text);
+   min-height: 100vh;
+   padding: 24px;
+   overflow-x: hidden;
+  }
+
+  /* PARTÍCULAS DE FONDO */
+  .floating-particles {
+   position: fixed;
+   inset: 0;
+   pointer-events: none;
+   z-index: 0;
+   overflow: hidden;
+  }
+
+  .star {
+   position: absolute;
+   font-size: 1.5rem;
+   opacity: 0;
+   animation: starBlink ease-in-out infinite;
+   filter: drop-shadow(0 0 7px rgba(255,215,0,0.9));
+   user-select: none;
+  }
+  .star:nth-child(1){top:4%; left:6%; font-size:1.2rem; animation-duration:2.8s; animation-delay:0s;}
+  .star:nth-child(2){top:7%; left:50%; font-size:1.8rem; animation-duration:3.3s; animation-delay:.6s;}
+  .star:nth-child(3){top:3%; left:84%; font-size:1.3rem; animation-duration:2.5s; animation-delay:1.1s;}
+  .star:nth-child(4){top:91%; left:12%; font-size:1.1rem; animation-duration:3.6s; animation-delay:1.5s;}
+  .star:nth-child(5){top:94%; left:72%; font-size:1.4rem; animation-duration:3.0s; animation-delay:.9s;}
+  .star:nth-child(6){top:44%; left:1%; font-size:1.0rem; animation-duration:3.2s; animation-delay:2.1s;}
+  .star:nth-child(7){top:54%; left:98%; font-size:1.5rem; animation-duration:2.7s; animation-delay:1.8s;}
+  .star:nth-child(8){top:22%; left:22%; font-size:1.1rem; animation-duration:4.0s; animation-delay:3.0s;}
+  .star:nth-child(9){top:78%; left:60%; font-size:1.3rem; animation-duration:2.9s; animation-delay:4.2s;}
+  @keyframes starBlink {
+   0%,100%{opacity:0; transform:scale(0.6) rotate(0deg);}
+   40%{opacity:1; transform:scale(1.4) rotate(25deg);}
+   70%{opacity:0.7; transform:scale(1.1) rotate(-10deg);}
+  }
+
+  .cloud {
+   position: absolute;
+   background: rgba(255,255,255,0.88);
+   border-radius: 60px;
+   animation: cloudDrift linear infinite;
+   box-shadow: 0 6px 22px rgba(160,200,255,0.25), 0 2px 0 rgba(255,255,255,0.6) inset;
+  }
+  .cloud::before,.cloud::after{content:""; position:absolute; background:rgba(255,255,255,0.90); border-radius:50%;}
+  .cloud:nth-child(10){width:120px; height:40px; top:6%; left:-150px; opacity:.65; animation-duration:30s;}
+  .cloud:nth-child(10)::before{width:62px; height:62px; top:-32px; left:14px;}
+  .cloud:nth-child(10)::after{width:42px; height:42px; top:-20px; left:58px;}
+  .cloud:nth-child(11){width:85px; height:28px; top:13%; left:-110px; opacity:.45; animation-duration:40s; animation-delay:10s;}
+  .cloud:nth-child(11)::before{width:42px; height:42px; top:-22px; left:10px;}
+  .cloud:nth-child(11)::after{width:30px; height:30px; top:-14px; left:40px;}
+  .cloud:nth-child(12){width:150px; height:48px; top:78%; left:-180px; opacity:.42; animation-duration:48s; animation-delay:16s;}
+  .cloud:nth-child(12)::before{width:76px; height:76px; top:-38px; left:18px;}
+  .cloud:nth-child(12)::after{width:54px; height:54px; top:-24px; left:74px;}
+  .cloud:nth-child(13){width:95px; height:32px; top:87%; left:-115px; opacity:.38; animation-duration:35s; animation-delay:24s;}
+  .cloud:nth-child(13)::before{width:48px; height:48px; top:-24px; left:12px;}
+  .cloud:nth-child(13)::after{width:34px; height:34px; top:-16px; left:46px;}
+  @keyframes cloudDrift{from{transform:translateX(0);}to{transform:translateX(calc(100vw + 220px));}}
+
+  .math-sym {
+   position: absolute;
+   font-family: 'Fredoka', sans-serif;
+   font-weight: 700;
+   opacity: 0;
+   animation: mathFloat ease-in-out infinite;
+   user-select: none;
+   pointer-events: none;
+  }
+  .math-sym:nth-child(14){top:17%; left:3%; font-size:2.6rem; color:rgba(194,92,38,0.55); animation-duration:6.5s;}
+  .math-sym:nth-child(15){top:70%; left:5%; font-size:2.0rem; color:rgba(115,162,29,0.58); animation-duration:7.2s; animation-delay:1.8s;}
+  .math-sym:nth-child(16){top:22%; left:92%; font-size:2.8rem; color:rgba(226,188,51,0.70); animation-duration:5.8s; animation-delay:.9s;}
+  .math-sym:nth-child(17){top:63%; left:89%; font-size:2.2rem; color:rgba(194,92,38,0.52); animation-duration:8.5s; animation-delay:3s;}
+  .math-sym:nth-child(18){top:46%; left:0%; font-size:2.3rem; color:rgba(115,162,29,0.48); animation-duration:7.0s; animation-delay:3.5s;}
+  .math-sym:nth-child(19){top:83%; left:44%; font-size:1.9rem; color:rgba(194,92,38,0.44); animation-duration:7.8s; animation-delay:4.5s;}
+  .math-sym:nth-child(20){top:9%; left:68%; font-size:2.4rem; color:rgba(226,188,51,0.60); animation-duration:6.2s; animation-delay:1.2s;}
+  .math-sym:nth-child(21){top:34%; left:87%; font-size:2.1rem; color:rgba(115,162,29,0.54); animation-duration:9.0s; animation-delay:5.5s;}
+  .math-sym:nth-child(22){top:53%; left:48%; font-size:1.7rem; color:rgba(194,92,38,0.38); animation-duration:5.2s; animation-delay:2.2s;}
+  .math-sym:nth-child(23){top:40%; left:96%; font-size:2.0rem; color:rgba(226,188,51,0.52); animation-duration:6.8s; animation-delay:6s;}
+  @keyframes mathFloat {
+   0%{opacity:0; transform:translateY(0) rotate(0deg) scale(0.7);}
+   20%{opacity:0.85;}
+   50%{opacity:0.72; transform:translateY(-32px) rotate(14deg) scale(1.15);}
+   80%{opacity:0.85;}
+   100%{opacity:0; transform:translateY(0) rotate(-10deg) scale(0.7);}
+  }
+
+  .dot {
+   position: absolute;
+   border-radius: 50%;
+   animation: bounceDot ease-in-out infinite;
+   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .dot:nth-child(24){top:19%; left:14%; width:20px; height:20px; background:rgba(255,100,120,0.60); animation-duration:3.8s;}
+  .dot:nth-child(25){top:59%; left:87%; width:15px; height:15px; background:rgba(80,190,100,0.65); animation-duration:4.3s; animation-delay:1.1s;}
+  .dot:nth-child(26){top:34%; left:28%; width:22px; height:22px; background:rgba(226,188,51,0.60); animation-duration:3.5s; animation-delay:.6s;}
+  .dot:nth-child(27){top:74%; left:20%; width:13px; height:13px; background:rgba(80,150,255,0.60); animation-duration:5.2s; animation-delay:2.2s;}
+  .dot:nth-child(28){top:29%; left:77%; width:17px; height:17px; background:rgba(200,80,200,0.50); animation-duration:4.6s; animation-delay:1.7s;}
+  .dot:nth-child(29){top:84%; left:54%; width:24px; height:24px; background:rgba(255,165,0,0.55); animation-duration:3.3s; animation-delay:.9s;}
+  .dot:nth-child(30){top:11%; left:38%; width:11px; height:11px; background:rgba(115,162,29,0.65); animation-duration:6.2s; animation-delay:3.2s;}
+  .dot:nth-child(31){top:64%; left:68%; width:19px; height:19px; background:rgba(255,80,80,0.45); animation-duration:4.0s; animation-delay:5s;}
+  @keyframes bounceDot {
+   0%,100%{transform:translateY(0) scale(1); opacity:0.55;}
+   35%{transform:translateY(-24px) scale(1.25); opacity:0.95;}
+   65%{transform:translateY(-8px) scale(0.92); opacity:0.75;}
+  }
+
+  .confetti {
+   position: absolute;
+   width: 0; height: 0;
+   opacity: 0;
+   animation: confettiFall linear infinite;
+   pointer-events: none;
+  }
+  .confetti:nth-child(32){border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:15px solid rgba(226,188,51,0.60); top:-5%; left:18%; animation-duration:13s;}
+  .confetti:nth-child(33){border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:11px solid rgba(194,92,38,0.55); top:-5%; left:62%; animation-duration:16s; animation-delay:4.5s;}
+  .confetti:nth-child(34){border-left:11px solid transparent; border-right:11px solid transparent; border-bottom:17px solid rgba(115,162,29,0.55); top:-5%; left:42%; animation-duration:19s; animation-delay:9s;}
+  .confetti:nth-child(35){border-left:8px solid transparent; border-right:8px solid transparent; border-bottom:13px solid rgba(255,100,120,0.50); top:-5%; left:80%; animation-duration:15s; animation-delay:2.5s;}
+  .confetti:nth-child(36){border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:10px solid rgba(80,150,255,0.50); top:-5%; left:32%; animation-duration:17s; animation-delay:7s;}
+  @keyframes confettiFall {
+   0%{opacity:0; transform:translateY(0) rotate(0deg);}
+   10%{opacity:0.8;}
+   90%{opacity:0.6;}
+   100%{opacity:0; transform:translateY(110vh) rotate(800deg);}
+  }
+
+  /* CONTENEDOR */
+  .container {
+   max-width: 1200px;
+   margin: 0 auto;
+   position: relative;
+   z-index: 2;
+  }
+
+  /* HEADER */
+  .header {
+   background: linear-gradient(115deg, #d6712a, #e58f42, #f0b145);
+   color: white;
+   border-radius: 60px 60px 30px 30px;
+   padding: 18px 30px;
+   margin-bottom: 30px;
+   box-shadow: var(--shadow-soft);
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   flex-wrap: wrap;
+   gap: 15px;
+   border: 2px solid rgba(255,255,255,0.3);
+   animation: cabeceo 3s infinite alternate ease;
+  }
+  @keyframes cabeceo {
+   0%{transform:rotate(0deg) translateY(0);}
+   100%{transform:rotate(0.4deg) translateY(-4px);}
+  }
+
+  .header h1 {
+   font-size: clamp(1.7rem, 3vw, 2.4rem);
+   letter-spacing: -0.02em;
+   display: flex;
+   align-items: center;
+   gap: 12px;
+  }
+  .header h1::before {
+   content: "";
+   font-size: 2.2rem;
+   filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.1));
+   animation: saltarin 2s infinite;
+  }
+  @keyframes saltarin {
+   0%,100%{transform:translateY(0);}
+   50%{transform:translateY(-6px);}
+  }
+
+  .header p {
+   font-size: 1.3rem;
+   background: rgba(255,255,240,0.25);
+   padding: 10px 22px;
+   border-radius: 100px;
+   backdrop-filter: blur(4px);
+  }
+
+  .header .header-badge {
+   background: #f6eacb;
+   padding: 10px 25px;
+   border-radius: 90px;
+   color: #6b3a15;
+   font-weight: 600;
+   font-size: 1.4rem;
+   box-shadow: inset 0 -3px 0 #c19a5b;
+   animation: giroContenido 4s infinite alternate;
+  }
+  @keyframes giroContenido {
+   0%{transform:rotate(-0.5deg);}
+   100%{transform:rotate(0.5deg) scale(1.02);}
+  }
+
+  /* MAIN GRID */
+  /* CORRECCIN: grid con min() para evitar overflow en pantallas pequeñas */
+  .main {
+   display: grid;
+   grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+   gap: 28px;
+   align-items: start;
+  }
+
+  /* CARD BASE */
+  .card {
+   background: var(--card);
+   border-radius: var(--radius-xl);
+   box-shadow: var(--shadow-soft);
+   padding: 28px;
+   border: 1px solid rgba(247,164,74,0.2);
+   transition: all 0.25s ease;
+   animation: aparecer 0.7s cubic-bezier(0.2,0.9,0.3,1.1);
+   position: relative;
+   z-index: 2;
+   /* CORRECCIN: evita que la card desborde */
+   overflow: hidden;
+   min-width: 0;
+  }
+  .card:hover {
+   transform: scale(1.01) translateY(-5px);
+   box-shadow: var(--shadow-bounce);
+  }
+  @keyframes aparecer {
+   0%{opacity:0; transform:translateY(18px) scale(0.96);}
+   100%{opacity:1; transform:translateY(0) scale(1);}
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+   display: inline-block;
+   background: #ffeac2;
+   color: var(--c2);
+   border: 2px solid #ffcf8e;
+   padding: 10px 22px;
+   border-radius: 60px;
+   font-weight: 700;
+   margin-bottom: 20px;
+   font-size: 1.2rem;
+   box-shadow: 0 4px 0 #dbaa6b;
+   animation: titilar 2.5s infinite;
+  }
+  @keyframes titilar {
+   0%,100%{background:#ffeac2;}
+   50%{background:#ffdeaa;}
+  }
+
+  /* OBJETIVO GENERAL */
+  .general-box {
+   background: linear-gradient(135deg, #fff8e7, #fffff4);
+   border-left: 10px solid var(--c4);
+   border-radius: 24px;
+   padding: 22px 24px;
+   margin-bottom: 28px;
+   box-shadow: inset 0 -3px 0 rgba(226,188,51,0.4);
+  }
+  .general-box h2 {
+   color: var(--c1);
+   font-size: clamp(1.3rem, 2.5vw, 1.8rem); /* CORRECCIN: tamaño responsive */
+   margin-bottom: 12px;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   flex-wrap: wrap;
+  }
+  .general-box h2::after {
+   content: "⭐";
+   font-size: 2rem;
+   animation: girarEstrella 5s infinite linear;
+  }
+  @keyframes girarEstrella {
+   0%{transform:rotate(0deg);}
+   25%{transform:rotate(12deg);}
+   75%{transform:rotate(-8deg);}
+   100%{transform:rotate(0deg);}
+  }
+  .general-box p {
+   font-size: 1.1rem;
+   line-height: 1.7;
+   color: var(--muted);
+   background: rgba(255,255,210,0.3);
+   padding: 8px 12px;
+   border-radius: 18px;
+  }
+
+  /* OBJETIVOS ESPECÍFICOS */
+  .specific-list {
+   display: grid;
+   gap: 18px;
+   margin-top: 10px;
+  }
+  .specific-item {
+   display: flex;
+   align-items: flex-start;
+   gap: 18px;
+   background: #fef5e3;
+   border-radius: 30px;
+   padding: 16px 20px;
+   border: 1px solid #ffe2a4;
+   transition: all 0.2s;
+   animation: deslizaItem 0.4s ease backwards;
+  }
+  .specific-item:nth-child(1){animation-delay:0.1s;}
+  .specific-item:nth-child(2){animation-delay:0.2s;}
+  .specific-item:nth-child(3){animation-delay:0.3s;}
+  @keyframes deslizaItem {
+   0%{opacity:0; transform:translateX(-20px);}
+   100%{opacity:1; transform:translateX(0);}
+  }
+  .specific-item:hover {
+   background: #ffefcf;
+   transform: scale(1.02) translateY(-3px);
+   border-color: var(--c5);
+  }
+
+  .number {
+   width: 46px;
+   height: 46px;
+   flex-shrink: 0;
+   border-radius: 50%;
+   background: linear-gradient(145deg, #86b32d, #61941a);
+   color: white;
+   font-size: 1.6rem;
+   font-weight: 700;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: 0 7px 0 #406110, 0 8px 16px #b3d47a;
+   animation: brincaNum 3s infinite ease;
+  }
+  @keyframes brincaNum {
+   0%,100%{transform:translateY(0);}
+   45%{transform:translateY(-4px);}
+   55%{transform:translateY(-2px);}
+  }
+  .specific-item p {
+   font-size: 1.07rem;
+   line-height: 1.6;
+   color: var(--text);
+  }
+
+  /* TAGS */
+  .tags {
+   display: flex;
+   gap: 12px;
+   margin-top: 24px;
+   justify-content: center;
+   flex-wrap: wrap;
+  }
+  .tags span {
+   background: #e7d0b0;
+   padding: 8px 14px;
+   border-radius: 60px;
+   font-size: 0.95rem;
+  }
+
+  /* SIDE CARD */
+  .side-card {
+   background: radial-gradient(circle at 100% 20%, rgba(226,188,51,0.2) 0%, transparent 40%),
+         linear-gradient(165deg, #fffbf2, #fff3dd);
+   text-align: center;
+   padding: 24px 22px 34px;
+   border-radius: 50px 50px 30px 30px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   border: 2px solid rgba(255,188,26,0.6);
+   animation: flotar 4s infinite alternate;
+   /* CORRECCIN: evita overflow del contenido lateral */
+   min-width: 0;
+   overflow: hidden;
+  }
+  @keyframes flotar {
+   0%{transform:translateY(0);}
+   100%{transform:translateY(-10px);}
+  }
+
+  /* BHO */
+  .owl {
+   width: 170px;
+   margin: 0 auto 16px;
+   border-radius: 50% 50% 30% 30%;
+   overflow: hidden;
+   box-shadow: 0 18px 20px -8px #bd7e41;
+   border: 5px solid white;
+   background: #fbe4b0;
+   transition: 0.3s;
+   /* CORRECCIN: animación simplificada, sin conflicto con talking/idle */
+   animation: mirar 6s infinite;
+  }
+  .owl img {
+   width: 100%;
+   display: block;
+   transition: 0.3s;
+  }
+  .owl:hover img { transform: scale(1.08) rotate(2deg); }
+  @keyframes mirar {
+   0%,100%{transform:rotate(0deg);}
+   10%{transform:rotate(-1deg) scale(1.02);}
+   30%{transform:rotate(1deg);}
+  }
+
+  /* Estados del búho (sin conflicto entre sí) */
+  .owl.idle { animation: mirar 6s infinite, respirarGauss 2.8s infinite ease-in-out; }
+  .owl.talking { animation: none; transform: scale(1.05); filter: drop-shadow(0 0 12px gold); }
+  .owl.talking img { animation: hablarBoca 0.22s infinite alternate ease-in-out; }
+  @keyframes hablarBoca {
+   0%{transform:scale(1) rotate(0deg);}
+   50%{transform:scale(1.03, 0.97) rotate(0.5deg);}
+   100%{transform:scale(1.04, 0.96) rotate(0.4deg);}
+  }
+  @keyframes respirarGauss {
+   0%,100%{transform:translateY(0) scale(1);}
+   50%{transform:translateY(-2px) scale(1.015);}
+  }
+
+  /* CHAT DE GAUSS */
+  .gauss-chat {
+   width: 100%;
+   max-width: 290px;
+   margin: 10px auto 18px;
+   background: linear-gradient(135deg, #fff8ea, #fff2d8);
+   border: 2px solid #ffd48e;
+   border-radius: 24px;
+   box-shadow: 0 12px 24px rgba(114,39,14,0.14);
+   overflow: visible;
+   animation: aparecerChat .5s ease;
+   position: relative;
+  }
+  @keyframes aparecerChat {
+   from{opacity:0; transform:translateY(10px) scale(.96);}
+   to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .gauss-chat-header {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding: 10px 14px;
+   background: linear-gradient(145deg, #f6b243, #ef8f1e);
+   color: white;
+   font-weight: 700;
+   font-size: .95rem;
+   border-radius: 22px 22px 0 0;
+  }
+  .dot-live {
+   width: 10px; height: 10px;
+   border-radius: 50%;
+   background: #b8ff78;
+   box-shadow: 0 0 10px rgba(184,255,120,.9);
+   animation: pulsoLive 1.2s infinite;
+   flex-shrink: 0;
+  }
+  @keyframes pulsoLive {
+   0%,100%{transform:scale(1); opacity:1;}
+   50%{transform:scale(1.35); opacity:.7;}
+  }
+  .gauss-chat-body {
+   padding: 14px 16px;
+   font-size: 1rem;
+   line-height: 1.5;
+   color: #6b3418;
+   min-height: 90px;
+   text-align: left;
+   position: relative;
+  }
+  /* Cola del globo de chat */
+  .gauss-chat-body::after {
+   content: "";
+   position: absolute;
+   left: 22px;
+   bottom: -12px;
+   width: 24px; height: 24px;
+   background: #fff2d8;
+   border-left: 2px solid #ffd48e;
+   border-bottom: 2px solid #ffd48e;
+   transform: rotate(-45deg);
+  }
+  .typing { border-right: 3px solid #c25c26; animation: cursorBlink .7s infinite; }
+  @keyframes cursorBlink {
+   0%,100%{border-color:#c25c26;}
+   50%{border-color:transparent;}
+  }
+
+  /* BOTN */
+  .side-card h3 {
+   color: var(--c1);
+   font-size: 2rem;
+   line-height: 1.2;
+   margin: 5px 0 8px;
+   text-shadow: 2px 2px 0 #ffe39a;
+  }
+  .side-card > p {
+   color: var(--muted);
+   font-size: 1.05rem;
+   background: rgba(255,235,186,0.6);
+   padding: 10px 18px;
+   border-radius: 40px;
+   margin: 12px 0 20px;
+   max-width: 260px;
+  }
+  .btn {
+   display: inline-block;
+   text-decoration: none;
+   background: linear-gradient(145deg, #f8b83e, #f0921d);
+   color: white;
+   padding: 15px 35px;
+   border-radius: 60px;
+   font-weight: 700;
+   font-size: 1.25rem;
+   letter-spacing: 1px;
+   box-shadow: 0 10px 0 #a35106, 0 8px 25px #ffb45b;
+   transition: 0.08s linear;
+   animation: lateBtn 2.2s infinite;
+   border: 2px solid #ffde94;
+   cursor: pointer;
+   font-family: 'Fredoka', sans-serif;
+  }
+  @keyframes lateBtn {
+   0%,100%{transform:scale(1);}
+   90%{transform:scale(1.02);}
+   95%{transform:scale(0.98);}
+  }
+  .btn:hover { transform:translateY(-4px); box-shadow: 0 12px 0 #a35106, 0 12px 25px #fcaa48; }
+  .btn:active { transform:translateY(6px); box-shadow: 0 5px 0 #904b0b; }
+
+  /* INDICADOR DE VOZ */
+  /* NUEVO: muestra estado del sistema de voz al usuario */
+  .voz-estado {
+   font-size: 0.82rem;
+   color: var(--muted);
+   margin-top: 8px;
+   padding: 5px 14px;
+   background: rgba(255,235,186,0.5);
+   border-radius: 30px;
+   display: flex;
+   align-items: center;
+   gap: 6px;
+  }
+  .voz-estado.activa { color: #3a7a10; background: rgba(180,255,120,0.25); }
+  .voz-estado.inactiva { color: #a35106; background: rgba(255,200,100,0.25); }
+
+  /* CHISPAS */
+  .spark {
+   position: fixed;
+   width: 6px; height: 6px;
+   background: gold;
+   border-radius: 50%;
+   pointer-events: none;
+   animation: sparkFly 1s linear forwards;
+   z-index: 9999;
+  }
+  @keyframes sparkFly {
+   0%{transform:translate(0,0); opacity:1;}
+   100%{transform:translate(var(--x),var(--y)); opacity:0;}
+  }
+
+  /* FOOTER */
+  .footer-badge {
+   text-align: center;
+   margin-top: 30px;
+   color: #8b6e50;
+  }
+
+  .gauss-runtime-support {
+   position: absolute;
+   width: 1px;
+   height: 1px;
+   overflow: hidden;
+   opacity: 0;
+   pointer-events: none;
+  }
+
+   .gauss-chat-wrapper{
+   position:fixed;
+   right:20px;
+   bottom:30px;
+   z-index:9998;
+   display:flex;
+   flex-direction:column;
+   align-items:flex-end;
+   gap:12px;
+   width:fit-content;
+   pointer-events:none;
+  }
+
+   .gauss-bubble{
+   max-width:280px;
+   background:#ffffff;
+   color:#333;
+   border-radius:18px;
+   padding:14px 16px;
+   box-shadow:0 10px 30px rgba(0,0,0,0.18);
+   font-size:15px;
+   line-height:1.4;
+   position:relative;
+   opacity:0;
+   transform:translateY(15px) scale(0.95);
+   pointer-events:none;
+   transition:opacity 0.35s ease, transform 0.35s ease;
+   font-family:"Fredoka",sans-serif;
+   border:2px solid rgba(226,188,51,0.28);
+  }
+
+   .gauss-bubble.show{
+   opacity:1;
+   transform:translateY(0) scale(1);
+   pointer-events:auto;
+  }
+
+   .gauss-bubble::after{
+   content:"";
+   position:absolute;
+   right:44px;
+   bottom:-8px;
+   width:16px;
+   height:16px;
+   background:#fff;
+   transform:rotate(45deg);
+   border-radius:3px;
+   border-right:2px solid rgba(226,188,51,0.18);
+   border-bottom:2px solid rgba(226,188,51,0.18);
+  }
+
+   .gauss-title{
+   font-weight:700;
+   color:#C25C26;
+   margin-bottom:4px;
+   font-size:16px;
+  }
+
+   .gauss-chat-btn{
+   width:170px;
+   height:170px;
+   border:none;
+   border-radius:50%;
+   background:linear-gradient(135deg, #E2BC33, #C25C26);
+   box-shadow:0 10px 24px rgba(0,0,0,0.22);
+   cursor:pointer;
+   display:flex;
+   align-items:center;
+   justify-content:center;
+   overflow:hidden;
+   pointer-events:auto;
+   transition:transform 0.25s ease, box-shadow 0.25s ease;
+   flex-shrink:0;
+   padding:0;
+   animation:gaussFloat 2.8s ease-in-out infinite;
+  }
+
+   .gauss-chat-btn:hover,
+  .gauss-chat-btn:focus-visible{
+   transform:scale(1.07);
+   box-shadow:0 14px 28px rgba(0,0,0,0.28);
+   outline:none;
+  }
+
+   .gauss-chat-btn.open{
+   animation:none;
+   transform:scale(1.05);
+   box-shadow:0 0 0 6px rgba(226,188,51,0.18), 0 14px 30px rgba(0,0,0,0.26);
+  }
+
+   .gauss-chat-btn.is-speaking{
+   animation:none;
+   transform:scale(1.08);
+   box-shadow:0 0 0 8px rgba(115,162,29,0.22), 0 0 22px rgba(226,188,51,0.32), 0 16px 34px rgba(0,0,0,0.28);
+  }
+
+   .gauss-chat-btn img{
+   width:100%;
+   height:100%;
+   object-fit:cover;
+   object-position:center top;
+   border-radius:50%;
+  }
+
+  
+  .footer-badge span {
+   background: #fff2d7;
+   padding: 6px 25px;
+   border-radius: 60px;
+   display: inline-block;
+  }
+
+  /* PANTALLA DE BIENVENIDA */
+  #splash {
+   position: fixed;
+   inset: 0;
+   z-index: 9999;
+   background: linear-gradient(145deg, #fdf3e0, #ffe8bb);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 20px;
+   cursor: pointer;
+   animation: splashIn .4s ease;
+  }
+  @keyframes splashIn { from{opacity:0;} to{opacity:1;} }
+  #splash.salir {
+   animation: splashOut .45s ease forwards;
+   pointer-events: none;
+  }
+  @keyframes splashOut {
+   0% { opacity:1; transform:scale(1); }
+   100%{ opacity:0; transform:scale(1.06); }
+  }
+  .splash-owl {
+   width: 130px;
+   border-radius: 50% 50% 30% 30%;
+   overflow: hidden;
+   border: 5px solid white;
+   box-shadow: 0 16px 30px -8px #bd7e41;
+   background: #fbe4b0;
+   animation: splashBounce 1.4s infinite ease-in-out;
+  }
+  .splash-owl img { width:100%; display:block; }
+  @keyframes splashBounce {
+   0%,100%{ transform:translateY(0); }
+   50%  { transform:translateY(-10px); }
+  }
+  .splash-title {
+   font-size: clamp(1.8rem,4vw,2.6rem);
+   color: var(--c2);
+   text-shadow: 2px 2px 0 #ffe39a;
+   text-align: center;
+  }
+  .splash-sub {
+   font-size: 1.1rem;
+   color: var(--muted);
+   text-align: center;
+   max-width: 320px;
+   line-height: 1.5;
+  }
+  .splash-btn {
+   background: linear-gradient(145deg,#f8b83e,#f0921d);
+   color: white;
+   padding: 14px 40px;
+   border-radius: 60px;
+   font-family: 'Fredoka', sans-serif;
+   font-weight: 700;
+   font-size: 1.3rem;
+   border: 2px solid #ffde94;
+   box-shadow: 0 8px 0 #a35106, 0 6px 20px #ffb45b;
+   cursor: pointer;
+   animation: lateBtn 2s infinite;
+   margin-top: 6px;
+  }
+  .splash-hint {
+   font-size: .9rem;
+   color: #b07040;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 850px) {
+   .main { grid-template-columns: 1fr; }
+   .header { flex-direction: column; text-align: center; }
+   .header .header-badge { font-size: 1.1rem; }
+   .side-card { border-radius: 30px; }
+   .gauss-chat-wrapper { right: 14px; bottom: 18px; }
+   .gauss-bubble { max-width: min(280px, calc(100vw - 42px)); }
+   .gauss-chat-btn { width: 120px; height: 120px; }
+  }
+  @media (max-width: 480px) {
+   body { padding: 14px; }
+   .header { padding: 14px 18px; border-radius: 30px 30px 20px 20px; }
+   .card { padding: 18px; }
+   .general-box h2 { font-size: 1.2rem; }
+  }
+ </style>
+</head>
+<body>
+
+ <!-- PANTALLA DE BIENVENIDA -->
+ <div id="splash" onclick="(function(){var s=document.getElementById('splash'); if(!s)return; s.classList.add('salir'); setTimeout(function(){ if(s && s.parentNode){ s.remove(); } },460); if(typeof arrancarDesdeGesto==='function'){ arrancarDesdeGesto(); } })();">
+  <div class="splash-owl">
+   <img src="../imagenes/Gauss1.gif" alt="Gauss"
+      onerror="this.style.display='none';this.parentElement.innerHTML='<div style=&quot;font-size:6rem;text-align:center&quot;></div>';" />
+  </div>
+  <div class="splash-title">¡Bienvenido a los<br>Objetivos!</div>
+  <div class="splash-sub">Soy <b>Gauss</b> y te explicaré todo lo que aprenderás en esta aventura matemática </div>
+  <button class="splash-btn" type="button" onclick="event.preventDefault(); event.stopPropagation(); (function(){var s=document.getElementById('splash'); if(!s)return; s.classList.add('salir'); setTimeout(function(){ if(s && s.parentNode){ s.remove(); } },460); if(typeof arrancarDesdeGesto==='function'){ arrancarDesdeGesto(); } })();">¡Empecemos! </button>
+  <div class="splash-hint">Haz clic en cualquier lugar para continuar</div>
+ </div>
+
+ <!-- Partículas de fondo -->
+ <div class="floating-particles">
+  <div class="star">⭐</div><div class="star"></div><div class="star">⭐</div>
+  <div class="star"></div><div class="star">⭐</div><div class="star"></div>
+  <div class="star">⭐</div><div class="star"></div><div class="star">⭐</div>
+  <div class="cloud"></div><div class="cloud"></div>
+  <div class="cloud"></div><div class="cloud"></div>
+  <div class="math-sym">+</div><div class="math-sym"></div>
+  <div class="math-sym">÷</div><div class="math-sym">=</div>
+  <div class="math-sym"></div><div class="math-sym"></div>
+  <div class="math-sym"></div><div class="math-sym"></div>
+  <div class="math-sym">%</div><div class="math-sym">²</div>
+  <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  <div class="dot"></div><div class="dot"></div>
+  <div class="confetti"></div><div class="confetti"></div><div class="confetti"></div>
+  <div class="confetti"></div><div class="confetti"></div>
+ </div>
+
+ <div class="container">
+  <!-- Header -->
+  <header class="header">
+   <div>
+    <h1>🎯 Objetivos divertidos</h1>
+    <p>Matemáticas Divertidas Tercer Grado</p>
+   </div>
+    <div class="header-badge">🧮 + 🎮 = 🧠 Matemáticas</div>
+  </header>
+
+  <main class="main">
+   <!-- Columna principal -->
+   <article class="card">
+    <span class="section-title">🌟 OBJETIVO GENERAL 🌟</span>
+
+    <div class="general-box">
+     <h2>Matemáticas Divertidas Tercer Grado</h2>
+     <p>
+      Diseñar un software educativo interactivo que sirva como
+      <strong>compañero de aventuras</strong> para que los niños de tercer grado
+      refuercen números, operaciones y pensamiento lógico mediante
+      juegos, cuentos y retos animados.
+     </p>
+    </div>
+
+    <span class="section-title">OBJETIVOS ESPECÍFICOS</span>
+
+    <div class="specific-list">
+     <div class="specific-item">
+      <div class="number">1</div>
+      <p><strong>Informar</strong> con lecciones breves y visuales sobre valor posicional,
+      sumas y restas, usando personajes graciosos.</p>
+     </div>
+     <div class="specific-item">
+      <div class="number">2</div>
+      <p><strong>Guiar la práctica</strong> con ejercicios interactivos donde
+      puedan arrastrar, unir y descubrir resultados.</p>
+     </div>
+     <div class="specific-item">
+      <div class="number">3</div>
+      <p><strong>Motivar mediante juegos</strong>, recompensas y retos que
+      convierten cada error en una oportunidad de seguir jugando.</p>
+     </div>
+    </div>
+
+    <div class="tags">
+          <span>🏅 Ejercicios</span>
+          <span>🧩 Juegos educativos</span>
+          <span>🦉 Agente Pedagógico</span>
+        </div>
+      </article>
+
+   <!-- Columna lateral -->
+   <aside class="card side-card">
+    <h3> ¡Aprende con el búho!</h3>
+    <p>Cada objetivo está pensado para que te diviertas mientras
+     te conviertes en un campeón de los números.</p>
+
+    <button class="btn" id="btnComenzar">Comenzar</button>
+
+    <p style="font-size:0.9rem; margin-top:16px; background:transparent;">¡Sigue Adelante!</p>
+   </aside>
+  </main>
+
+  <div class="footer-badge">
+   <span> GRUPO: GOATS ENRIQUECEDORES</span>
+  </div>
+ </div>
+
+  <!-- Audio de fondo (opcional) -->
+ <audio id="musica" loop preload="auto">
+  <source src="../musica/Enriquecedora1.mp3" type="audio/mpeg">
+ </audio>
+
+ 
+
+ <div class="gauss-runtime-support" aria-hidden="true">
+  <div id="gaussMessage">Gauss está listo para ayudarte.</div>
+  <div id="vozEstado"><span>🔊</span><span id="vozTexto">Voz lista</span></div>
+ </div>
+
+ <div class="gauss-chat-wrapper" id="gaussWrapper">
+  <div class="gauss-bubble" id="gaussBubble" role="status" aria-live="polite">
+   <div class="gauss-title" id="gaussBubbleTitle">¡Hola! Soy Gauss</div>
+   <div id="gaussBubbleText">Gauss está listo para ayudarte.</div>
+  </div>
+  <button class="gauss-chat-btn" id="gaussBtn"
+      aria-label="Abrir o cerrar el asistente Gauss"
+      aria-expanded="false"
+      type="button">
+   <img src="../imagenes/gauss1.gif" id="gaussBtnImg" data-idle-src="../imagenes/Gauss.png" data-speaking-src="../imagenes/gauss2.gif" alt="" aria-hidden="true" />
+  </button>
+ </div>
+
+
+ <script>
+ /* 
+   CONFIGURACIN
+  */
+ const owl     = document.getElementById('gaussBtnImg');
+ const gaussMessage = document.getElementById('gaussMessage');
+ const vozEstado  = document.getElementById('vozEstado');
+ const vozTexto   = document.getElementById('vozTexto');
+ const musica    = document.getElementById('musica'); // AUDIO DE FONDO
+
+ const mensajes = {
+  inicio:   "¡Hola! Soy Gauss. Te ayudaré a aprender matemáticas paso a paso.",
+  general:   "Este es el objetivo general. Aquí aprenderás jugando con matemáticas.",
+  especifico1: "Aquí aprenderás con ejemplos visuales sobre valor posicional, sumas y restas.",
+  especifico2: "Aquí practicarás con ejercicios interactivos para aprender haciendo.",
+  especifico3: "Aquí te motivarás con juegos, retos y recompensas para seguir aprendiendo."
+ };
+  let lastMessage = "";
+  let gaussBubble = null;
+  let gaussBtn = null;
+  let gaussBtnImg = null;
+  let gaussBubbleTitle = null;
+  let gaussBubbleText = null;
+  let hideTimer = null;
+
+  function ponerGaussEnReposo() {
+   if (!gaussBtnImg) return;
+   gaussBtnImg.src = gaussBtnImg.dataset.idleSrc || gaussBtnImg.src;
+   if (gaussBtn) gaussBtn.classList.remove("is-speaking");
+  }
+
+  function ponerGaussHablando() {
+   if (!gaussBtnImg) return;
+   gaussBtnImg.src = gaussBtnImg.dataset.speakingSrc || gaussBtnImg.src;
+   if (gaussBtn) gaussBtn.classList.add("is-speaking");
+  }
+
+  function actualizarBurbujaGauss(texto, titulo = "Gauss te orienta") {
+   if (!gaussBubbleText || !gaussBubbleTitle) return;
+   gaussBubbleTitle.textContent = titulo;
+   gaussBubbleText.textContent = texto || lastMessage || "Gauss está listo para ayudarte.";
+  }
+
+  function mostrarBurbujaGauss(tiempo = null) {
+   if (!gaussBubble || !gaussBtn) return;
+   if (hideTimer) {
+    clearTimeout(hideTimer);
+    hideTimer = null;
+   }
+   gaussBubble.classList.add("show");
+   gaussBtn.classList.add("open");
+   gaussBtn.setAttribute("aria-expanded", "true");
+   if (typeof tiempo === "number" && tiempo > 0) {
+    hideTimer = setTimeout(() => {
+     ocultarBurbujaGauss();
+    }, tiempo);
+   }
+  }
+
+  function ocultarBurbujaGauss() {
+   if (!gaussBubble || !gaussBtn) return;
+   if (hideTimer) {
+    clearTimeout(hideTimer);
+    hideTimer = null;
+   }
+   gaussBubble.classList.remove("show");
+   gaussBtn.classList.remove("open");
+   gaussBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function inicializarBotonFlotanteGauss() {
+   gaussBubble = document.getElementById("gaussBubble");
+   gaussBtn = document.getElementById("gaussBtn");
+   gaussBtnImg = document.getElementById("gaussBtnImg");
+   gaussBubbleTitle = document.getElementById("gaussBubbleTitle");
+   gaussBubbleText = document.getElementById("gaussBubbleText");
+   ponerGaussEnReposo();
+
+   if (!gaussBtn || !gaussBubble) return;
+
+   gaussBtn.addEventListener("click", () => {
+    const yaVisible = gaussBubble.classList.contains("show");
+    if (yaVisible) {
+     ocultarBurbujaGauss();
+     return;
+    }
+    actualizarBurbujaGauss(lastMessage || "Gauss está listo para ayudarte.", "¡Hola! Soy Gauss");
+    mostrarBurbujaGauss(4000);
+   });
+  }
+
+  document.addEventListener("DOMContentLoaded", inicializarBotonFlotanteGauss);
+
+ /* 
+   SISTEMA DE VOZ
+  */
+ let vozGauss = null;
+ let vocesListas = false;
+ let vozActivada = false;
+
+ function actualizarEstadoVoz(estado, msg) {
+  if (!vozEstado || !vozTexto) return;
+  vozEstado.className = 'voz-estado ' + estado;
+  vozTexto.textContent = msg;
+ }
+
+ function cargarVoces() {
+  const lista = window.speechSynthesis.getVoices();
+  if (lista.length === 0) return false;
+
+  vozGauss =
+   lista.find(v => /monica|paulina|helena|sandra|sofia|sabina|luciana/i.test(v.name) && /es/i.test(v.lang)) ||
+   lista.find(v => /es-HN/i.test(v.lang)) ||
+   lista.find(v => /es-MX/i.test(v.lang)) ||
+   lista.find(v => /es-ES/i.test(v.lang)) ||
+   lista.find(v => /es/i.test(v.lang)) ||
+   lista[0];
+
+  vocesListas = true;
+  return true;
+ }
+
+ if ('speechSynthesis' in window) {
+  if (!cargarVoces()) {
+   window.speechSynthesis.onvoiceschanged = () => { cargarVoces(); };
+   setTimeout(() => {
+    if (!vocesListas) {
+     const lista = window.speechSynthesis.getVoices();
+     if (lista.length > 0) {
+      vozGauss = lista.find(v => /es/i.test(v.lang)) || lista[0];
+      vocesListas = true;
+     }
+    }
+   }, 3000);
+  }
+  actualizarEstadoVoz('inactiva', 'Iniciando voz...');
+ } else {
+  actualizarEstadoVoz('inactiva', 'Tu navegador no soporta voz');
+ }
+
+ /* 
+   MSICA DE FONDO
+  */
+ function iniciarMusica() {
+  if (!musica) return;
+
+  musica.loop = true;
+  musica.volume = 0.35;
+
+  const playPromise = musica.play();
+
+  if (playPromise !== undefined) {
+   playPromise
+    .then(() => {
+     console.log("Música de fondo iniciada correctamente");
+    })
+    .catch(err => {
+     console.warn("El navegador bloqueó la reproducción automática:", err);
+
+     // Reintento al primer clic del usuario en cualquier parte
+     document.addEventListener('click', reintentarMusica, { once: true });
+    });
+  }
+ }
+
+ function reintentarMusica() {
+  if (!musica) return;
+  musica.play().catch(err => console.warn("No se pudo iniciar la música:", err));
+ }
+
+ /* 
+   ESCRITURA EN BURBUJA
+  */
+ let escribiendoIntervalo = null;
+
+ function escribirBurbuja(texto, velocidad = 20) {
+  return new Promise(resolve => {
+   if (!gaussMessage) {
+    resolve();
+    return;
+   }
+
+   if (escribiendoIntervalo) clearInterval(escribiendoIntervalo);
+
+   gaussMessage.textContent = "";
+   gaussMessage.classList.add("typing");
+   let i = 0;
+
+   escribiendoIntervalo = setInterval(() => {
+    gaussMessage.textContent += texto.charAt(i);
+    i++;
+
+    if (i >= texto.length) {
+     clearInterval(escribiendoIntervalo);
+     escribiendoIntervalo = null;
+     gaussMessage.classList.remove("typing");
+     resolve();
+    }
+   }, velocidad);
+  });
+ }
+
+ /* 
+   CHISPAS
+  */
+ function crearChispas(x, y) {
+  for (let i = 0; i < 8; i++) {
+   const s = document.createElement("div");
+   s.className = "spark";
+   s.style.left = x + "px";
+   s.style.top = y + "px";
+   s.style.setProperty("--x", (Math.random() - 0.5) * 120 + "px");
+   s.style.setProperty("--y", (Math.random() - 0.5) * 120 + "px");
+   document.body.appendChild(s);
+   setTimeout(() => s.remove(), 1000);
+  }
+ }
+
+ /* 
+   ESTADOS DEL BHO
+  */
+ function activarHabla() {
+   if (owl) owl.classList.add("talking");
+   ponerGaussHablando();
+  }
+
+  function desactivarHabla() {
+   if (owl) owl.classList.remove("talking");
+   ponerGaussEnReposo();
+  }
+
+ desactivarHabla();
+
+ /* 
+   FUNCIN PRINCIPAL DE HABLAR
+  */
+ let watchdogTimer = null;
+ let resumeInterval = null;
+
+ async function hablar(texto, elemento) {
+  if (elemento) {
+   elemento.scrollIntoView({ behavior: "smooth", block: "center" });
+   const rect = elemento.getBoundingClientRect();
+   crearChispas(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+   escribirBurbuja(texto);
+   lastMessage = texto || lastMessage;
+   actualizarBurbujaGauss(lastMessage);
+   mostrarBurbujaGauss(4500);
+
+   if (!vozActivada || !('speechSynthesis' in window)) return;
+
+  window.speechSynthesis.cancel();
+  await new Promise(r => setTimeout(r, 80));
+
+  const msg = new SpeechSynthesisUtterance(texto);
+  msg.lang  = vozGauss?.lang || "es-ES";
+  msg.rate  = 1.0;
+  msg.pitch = 1.5;
+  msg.volume = 1;
+
+  if (vozGauss) msg.voice = vozGauss;
+
+  activarHabla();
+  actualizarEstadoVoz('activa', 'Gauss está hablando...');
+
+  if (watchdogTimer) clearTimeout(watchdogTimer);
+  watchdogTimer = setTimeout(() => {
+   desactivarHabla();
+   actualizarEstadoVoz('activa', 'Voz lista');
+   if (resumeInterval) clearInterval(resumeInterval);
+  }, 8000);
+
+  if (resumeInterval) clearInterval(resumeInterval);
+  resumeInterval = setInterval(() => {
+   if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+   }
+  }, 1000);
+
+  msg.onend = () => {
+   clearTimeout(watchdogTimer);
+   clearInterval(resumeInterval);
+   desactivarHabla();
+   actualizarEstadoVoz('activa', 'Voz lista');
+  };
+
+  msg.onerror = (e) => {
+   clearTimeout(watchdogTimer);
+   clearInterval(resumeInterval);
+   desactivarHabla();
+
+   if (e.error !== 'interrupted' && e.error !== 'canceled') {
+    actualizarEstadoVoz('inactiva', 'Error de voz intenta de nuevo');
+   }
+  };
+
+  window.speechSynthesis.speak(msg);
+ }
+
+ /* 
+   SPLASH arranque automático al cerrar
+  */
+ function arrancarDesdeGesto() {
+  vozActivada = true;
+
+  // ACTIVAR MSICA DE FONDO
+  iniciarMusica();
+
+  if ('speechSynthesis' in window) {
+   const silencio = new SpeechSynthesisUtterance(" ");
+   silencio.volume = 0;
+   window.speechSynthesis.speak(silencio);
+
+   if (!vocesListas) cargarVoces();
+   actualizarEstadoVoz('activa', 'Voz lista');
+  }
+
+  setTimeout(() => {
+   hablar(mensajes.inicio, document.querySelector(".general-box"));
+  }, 300);
+ }
+
+ const splash = document.getElementById('splash');
+ const splashBtn = document.querySelector('#splash .splash-btn');
+
+ function cerrarSplashObjetivos() {
+  if (!splash) return;
+  splash.classList.add('salir');
+  setTimeout(() => splash.remove(), 460);
+  arrancarDesdeGesto();
+ }
+
+ if (splash) {
+  splash.addEventListener('click', cerrarSplashObjetivos);
+ }
+
+ if (splashBtn) {
+  splashBtn.addEventListener('click', (event) => {
+   event.preventDefault();
+   event.stopPropagation();
+   cerrarSplashObjetivos();
+  });
+ }
+
+ /* 
+   OBSERVER hablar al aparecer cada sección
+  */
+ const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+   if (!entry.isIntersecting || !vozActivada) return;
+
+   const texto = entry.target.innerText.toLowerCase();
+
+   if (texto.includes("matemáticas divertidas tercer grado")) {
+    hablar(mensajes.general, entry.target);
+   } else if (texto.includes("informar")) {
+    hablar(mensajes.especifico1, entry.target);
+   } else if (texto.includes("guiar la práctica")) {
+    hablar(mensajes.especifico2, entry.target);
+   } else if (texto.includes("motivar mediante juegos")) {
+    hablar(mensajes.especifico3, entry.target);
+   }
+  });
+ }, { threshold: 0.65 });
+
+ document.querySelectorAll(".general-box, .specific-item").forEach(el => observer.observe(el));
+
+ /* 
+   BOTN COMENZAR
+  */
+ const btnComenzar = document.getElementById('btnComenzar');
+ if (btnComenzar) {
+  btnComenzar.addEventListener('click', () => {
+   hablar("¡Vamos a comenzar la aventura!", btnComenzar);
+
+   setTimeout(() => {
+    try {
+     window.location.href = "../../Inicio_Retorno.html";
+    } catch (e) {
+     console.warn("No se encontró la ruta de navegación:", e);
+    }
+   }, 1500);
+  });
+ }
+</script>
+</body>
+</html>

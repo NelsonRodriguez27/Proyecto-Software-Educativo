@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="../../imagenes/GaussEstudia.png">
+  <title>Evaluación Final Completa · Aprende Jugando con Gauss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+  <style>
+    :root{
+      --go:#C25C26;--gb:#72270E;--gy:#E2BC33;--gg:#73A21D;--gl:#4a67d6;
+      --ok:#73A21D;--err:#d94d3f;--bg1:#fffaf3;--bg2:#fff3da;
+      --sh:0 12px 30px rgba(114,39,14,.14);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      width:100%;min-height:100%;font-family:'Fredoka',sans-serif;
+      background:radial-gradient(circle at 10% 10%,rgba(226,188,51,.16),transparent 24%),
+        radial-gradient(circle at 85% 15%,rgba(115,162,29,.16),transparent 20%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--gb);overflow-x:hidden;
+    }
+    body{padding:14px}
+    .app{max-width:1180px;margin:0 auto;position:relative;z-index:2}
+    .screen{display:none;animation:fadeIn .3s ease}
+    .screen.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:rgba(255,255,255,.92);border:2px solid rgba(255,255,255,.8);border-radius:26px;box-shadow:var(--sh)}
+    .btn{border:none;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1rem;padding:13px 20px;border-radius:16px;transition:.22s;box-shadow:0 8px 18px rgba(0,0,0,.07)}
+    .btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,var(--go),#d7772f);color:#fff}
+    .btn-secondary{background:linear-gradient(135deg,var(--gg),#8bc634);color:#fff}
+    .btn-light{background:#fff;color:var(--gb)}
+    .btn-warning{background:linear-gradient(135deg,var(--gy),#f6d96d);color:var(--gb)}
+    .btn-blue{background:linear-gradient(135deg,var(--gl),#6e88e8);color:#fff}
+
+    /* WELCOME */
+    .welcome{min-height:calc(100vh - 28px);display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center}
+    .welcome-left{padding:30px}.welcome-right{padding:20px;display:flex;align-items:center;justify-content:center;min-height:520px;position:relative;overflow:hidden}
+    .welcome-right::before{content:"";position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(226,188,51,.3),rgba(115,162,29,.12));filter:blur(4px);animation:floatBg 4s ease-in-out infinite}
+    @keyframes floatBg{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:linear-gradient(135deg,var(--gy),#f0d66f);color:var(--gb);font-weight:700;margin-bottom:16px;box-shadow:0 6px 16px rgba(226,188,51,.25);animation:pulseChip 2.5s infinite}
+    @keyframes pulseChip{0%{box-shadow:0 0 0 0 rgba(226,188,51,.4)}70%{box-shadow:0 0 0 10px rgba(226,188,51,0)}100%{box-shadow:0 0 0 0 rgba(226,188,51,0)}}
+    .big-title{font-size:clamp(2rem,5vw,3.8rem);line-height:1.02;margin-bottom:10px}
+    .big-sub{font-size:clamp(1rem,2vw,1.2rem);color:#7d4a30;line-height:1.55;margin-bottom:16px}
+    .gauss-chat{background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;border-radius:20px;overflow:hidden;max-width:640px;margin-bottom:16px;box-shadow:0 6px 16px rgba(114,39,14,.08)}
+    .gauss-chat-header{display:flex;align-items:center;gap:8px;padding:7px 14px;background:linear-gradient(145deg,#f6b243,#ef8f1e);color:#fff;font-weight:700;font-size:.88rem}
+    .gauss-chat-body{padding:12px 16px;line-height:1.6;color:#6d442e;min-height:80px}
+    .dot-live{width:9px;height:9px;border-radius:50%;background:#b8ff78;box-shadow:0 0 8px rgba(184,255,120,.9);animation:pulsoLive 1.2s infinite;flex-shrink:0}
+    @keyframes pulsoLive{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}
+    .voz-estado,.result-voz{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;padding:4px 12px;border-radius:30px;color:#7c5a4c;background:rgba(255,235,186,.5);margin-bottom:18px}
+    .voz-estado.activa,.result-voz.activa{color:#3a7a10;background:rgba(180,255,120,.25)}
+    .actions{display:flex;gap:11px;flex-wrap:wrap}
+    .gauss-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px}
+    .gauss-circle{width:min(340px,76vw);aspect-ratio:1/1;border-radius:50%;background:linear-gradient(135deg,var(--gy),var(--gg));padding:12px;box-shadow:0 14px 32px rgba(114,39,14,.18);animation:floatOwl 2.4s ease-in-out infinite;transition:filter .3s}
+    .gauss-circle.talking{filter:drop-shadow(0 0 14px rgba(226,188,51,.85))}
+    .mini-img-wrap,.result-img-wrap{border-radius:50%;background:linear-gradient(135deg,var(--gy),var(--gg));box-shadow:0 10px 22px rgba(114,39,14,.12);transition:filter .3s}
+    .mini-img-wrap{width:110px;height:110px;padding:7px;margin:0 auto 10px}
+    .result-img-wrap{width:120px;height:120px;padding:7px;margin:0 auto 14px}
+    .mini-img-wrap.talking,.result-img-wrap.talking{filter:drop-shadow(0 0 12px rgba(226,188,51,.85))}
+    .gauss-img,.mini-img-wrap img,.result-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;background:#fff}
+    .gauss-name{padding:9px 16px;border-radius:999px;background:#fff;font-weight:700;box-shadow:0 6px 16px rgba(114,39,14,.1)}
+    @keyframes floatOwl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+    /* GAME */
+    .topbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+    .topbar h2{font-size:clamp(1.3rem,3vw,2.2rem);margin-bottom:4px}
+    .topbar p{color:#77503d;font-size:.95rem}
+    .progress-card{min-width:260px;background:#fff;padding:13px 15px;border-radius:18px;box-shadow:0 8px 18px rgba(0,0,0,.06)}
+    .progress-meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;font-weight:700;color:#6f4835;font-size:.92rem}
+    .progress-track{height:13px;background:#f0e2c4;border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gg),#9ad03b);border-radius:999px;transition:.3s}
+    .game-screen{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+    .main-panel{padding:20px}.side-panel{padding:16px;position:sticky;top:14px}
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+    .meta-box{background:#fffaf0;border:2px solid #f1dfb8;border-radius:16px;padding:10px}
+    .meta-box strong{display:block;color:var(--go);margin-bottom:4px;font-size:.9rem}
+    .instructions{background:linear-gradient(135deg,#fff8e8,#fffdf7);border:2px dashed var(--gy);border-radius:20px;padding:14px;margin-bottom:16px;line-height:1.5;color:#714633;font-size:.96rem}
+    .exercise-card{background:linear-gradient(180deg,#fffdf9,#fff7ea);border:2px solid #f1dfb7;border-radius:24px;padding:20px;min-height:460px;overflow:hidden}
+    .exercise-title{font-size:1.25rem;color:var(--gb);margin-bottom:14px;text-align:center}
+    .unit-badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:.78rem;font-weight:700;margin-bottom:8px}
+    .unit-1{background:#ffecd6;color:#a04010}.unit-2{background:#d6f0ff;color:#1060a0}.unit-3{background:#d6ffd6;color:#206020}.unit-4{background:#f0d6ff;color:#700090}
+    .feedback{min-height:76px;margin-top:16px;border-radius:18px;padding:14px 16px;display:flex;align-items:center;line-height:1.5;font-size:.97rem;border:2px solid #ead8af;background:#fff;color:#6d4732}
+    .feedback.ok{background:#f3fff0;border-color:#bfe1ad;color:#2f6d1a}
+    .feedback.error{background:#fff2ef;border-color:#efc0b8;color:#9b2c21}
+    .feedback.info{background:#f7f8ff;border-color:#d8ddff;color:#4252aa}
+    .bottom-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:16px}
+    .gauss-side{background:linear-gradient(180deg,#fff4d5,#fffdf8);border:2px solid #efd9a0;border-radius:22px;padding:14px;text-align:center}
+    .side-chat{background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;border-radius:16px;overflow:hidden;margin-bottom:9px;box-shadow:0 3px 10px rgba(114,39,14,.07)}
+    .side-chat{display:none !important}
+    .side-chat-header{display:flex;align-items:center;gap:6px;padding:6px 11px;background:linear-gradient(145deg,#f6b243,#ef8f1e);color:#fff;font-weight:700;font-size:.8rem}
+    .side-chat-body{padding:9px 11px;font-size:.88rem;line-height:1.5;color:#6d442e;min-height:46px}
+    .side-badge{display:inline-block;padding:8px 14px;border-radius:999px;background:linear-gradient(135deg,var(--go),#d56f2d);color:#fff;font-weight:700;margin-top:5px;font-size:.9rem}
+    .attempts-chip{display:inline-block;margin-top:9px;padding:7px 12px;border-radius:999px;background:#fff;color:var(--gb);font-weight:700;box-shadow:0 6px 14px rgba(0,0,0,.06);font-size:.88rem}
+    .stars{margin-top:14px;font-size:1.5rem;letter-spacing:4px}
+
+    /* EJERCICIOS – Conteo */
+    .objects-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0}
+    .object-item{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#fff7df,#fff);display:flex;align-items:center;justify-content:center;font-size:1.85rem;box-shadow:0 6px 14px rgba(0,0,0,.06);border:2px solid #f3e1bb;transition:.18s}
+    .options-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:10px 0}
+    .card-opt{min-width:74px;min-height:72px;border-radius:20px;background:linear-gradient(135deg,#fff,#fff1ca);border:3px solid #ecd59f;color:var(--gb);font-size:1.4rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;box-shadow:0 8px 16px rgba(0,0,0,.06);transition:.18s;padding:8px 12px;text-align:center}
+    .card-opt:hover{transform:translateY(-2px)}.card-opt.selected{border-color:var(--gg);transform:scale(1.06);outline:4px solid rgba(115,162,29,.2)}
+    .card-opt.correct{background:linear-gradient(135deg,#e8fff0,#d0f5dc)!important;border-color:var(--ok)!important;color:#256d1a!important}
+    .card-opt.wrong{background:linear-gradient(135deg,#fff2ef,#fde0dc)!important;border-color:var(--err)!important;color:#9b2c21!important}
+    .card-opt.locked{opacity:.55;pointer-events:none}
+    .board{background:linear-gradient(135deg,#fff4d8,#fff);border:2px solid #f2d58d;border-radius:24px;padding:18px 16px;margin-bottom:16px;text-align:center;box-shadow:0 6px 14px rgba(0,0,0,.05)}
+    .board-label{font-size:.95rem;color:#866046;margin-bottom:8px;font-weight:700}
+    .board-value{font-size:clamp(1.6rem,4vw,2.6rem);color:var(--go);font-weight:700;line-height:1.3}
+    .drop-zone{width:min(240px,100%);min-height:82px;margin:0 auto 14px;border-radius:22px;border:3px dashed #d2b366;background:#fff8e7;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;color:#9d7446;font-size:.96rem;font-weight:600;transition:.18s;cursor:pointer}
+    .drop-zone.filled{border-style:solid;color:var(--gb);background:#fff;font-size:1.3rem;font-weight:700}
+    .drop-zone.correct-zone{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important;box-shadow:0 0 0 5px rgba(115,162,29,.22)!important}
+    .drop-zone.wrong-zone{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important}
+    .section-lbl{text-align:center;color:#7b4c37;font-weight:700;margin-bottom:10px}
+
+    /* valor posicional */
+    .columns-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .column-card{background:#fffef8;border:2px solid #efd9a0;border-radius:22px;padding:14px;text-align:center}
+    .column-title{color:var(--gb);font-size:1rem;margin-bottom:10px}
+    .place-slot{min-height:100px;border-radius:22px;border:3px dashed #d2b366;background:#fff8e7;display:flex;align-items:center;justify-content:center;padding:12px;color:#9d7446;font-size:.96rem;font-weight:600;cursor:pointer;transition:.18s}
+    .place-slot.filled{border-style:solid;color:var(--gb);background:#fff;font-size:1.8rem;font-weight:700}
+    .place-slot.correct-slot{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important;box-shadow:0 0 0 5px rgba(115,162,29,.22)!important}
+    .place-slot.wrong-slot{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important}
+
+    /* comparar */
+    .compare-row{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin:10px 0}
+    .num-box{min-width:120px;min-height:100px;border-radius:22px;background:#fff;border:3px solid #f0d79c;display:flex;align-items:center;justify-content:center;font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:700;color:var(--gb);box-shadow:0 8px 16px rgba(0,0,0,.05);padding:8px}
+    .sym-slot{width:80px;height:80px;border-radius:50%;border:3px dashed #d2b366;background:#fff8e7;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#9d7446;cursor:pointer;transition:.18s}
+    .sym-slot.filled{border-style:solid;color:var(--gb);background:#fff}
+    .sym-slot.correct-zone{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important}
+    .sym-slot.wrong-zone{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important}
+
+    /* orden */
+    .slots-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-top:10px}
+    .order-slot{min-height:100px;border-radius:22px;border:3px dashed #d2b366;background:#fff8e7;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;color:#9d7446;font-size:.96rem;font-weight:600;cursor:pointer;transition:.18s}
+    .order-slot.filled{border-style:solid;color:var(--gb);background:#fff}
+    .order-slot.correct-slot{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important}
+    .order-slot.wrong-slot{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important}
+    .slot-step{font-size:.88rem;color:#8a6748;margin-bottom:6px;font-weight:700}
+    .slot-value{min-height:30px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700}
+
+    /* suma/resta visual */
+    .visual-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin:10px 0}
+    .v-chip{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.85rem;border:2px solid #f3e1bb;background:linear-gradient(135deg,#fff7df,#fff)}
+    .v-chip.alt{background:#DCEBFA;border-color:#b0c8e8}.v-chip.alt2{background:#E9DDF7;border-color:#c8b0e8}.v-chip.alt3{background:#DDF4E7;border-color:#b0e8c8}
+    .eq-area{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-top:6px}
+    .eq-num{font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:700;min-width:40px;text-align:center}
+    .eq-sym{font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:700;min-width:36px;text-align:center}
+    .story-box{background:linear-gradient(135deg,#fffaf0,#fff);border:2px solid #f1dfb8;border-radius:18px;padding:14px;line-height:1.55;text-align:center;color:#714633;margin-bottom:14px}
+    .group-card{min-width:110px;min-height:86px;border-radius:20px;background:linear-gradient(135deg,#fff7df,#fff);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;box-shadow:0 6px 14px rgba(0,0,0,.06);border:2px solid #f3e1bb;padding:10px;cursor:pointer;transition:.18s}
+    .group-card:hover{transform:translateY(-2px)}.group-card.selected{border-color:var(--gg);outline:4px solid rgba(115,162,29,.2)}
+    .group-title-sm{font-size:.88rem;font-weight:700;color:#7b4c37}
+    .group-items{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+    .group-mini{width:26px;height:26px;border-radius:9px;background:#fff8ea;border:2px solid #ecd59f;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+
+    /* tabla decimales */
+    .table-wrap{width:100%;overflow-x:auto}
+    table.dtable{width:100%;border-collapse:separate;border-spacing:0;border-radius:18px;overflow:hidden;box-shadow:0 6px 20px rgba(114,39,14,.1)}
+    table.dtable thead tr{background:linear-gradient(135deg,var(--go),#d7772f)}
+    table.dtable thead th{padding:12px 16px;color:#fff;font-size:1rem;font-weight:700;text-align:center}
+    table.dtable tbody tr:nth-child(even){background:#fff8ee}
+    table.dtable tbody tr:nth-child(odd){background:#fff}
+    table.dtable tbody td{padding:11px 16px;text-align:center;font-size:1rem;border-bottom:1px solid #f2e0be;vertical-align:middle}
+    table.dtable tbody td.lbl{text-align:left;font-weight:600}
+    .blank-cell{width:78px;min-height:44px;border:3px dashed #d0b87a;border-radius:13px;background:linear-gradient(135deg,#fffbe8,#fff5cc);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.18s;font-size:.82rem;color:#b09060;font-weight:600;margin:0 auto}
+    .blank-cell.filled{border-style:solid;border-color:var(--gy);background:linear-gradient(135deg,#fff4c2,#ffe87a);color:var(--gb);font-size:1.1rem;font-weight:700}
+    .blank-cell.correct{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important;color:#256d1a!important}
+    .blank-cell.wrong{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important;color:#9b2c21!important}
+    .values-pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#fff;border:2px solid #f3e1bb;border-radius:20px;padding:14px;min-height:76px;width:100%;max-width:640px}
+    .val-chip{min-width:66px;min-height:56px;border-radius:16px;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:.18s;background:linear-gradient(135deg,#fff,#fff1ca);border:3px solid #ecd59f;color:var(--gb);box-shadow:0 6px 14px rgba(0,0,0,.06)}
+    .val-chip:hover{transform:translateY(-2px)}.val-chip.selected{outline:4px solid rgba(74,103,214,.35);border-color:var(--gl)}
+    .val-chip.used{opacity:.35;pointer-events:none}
+
+    /* clasificar decimales */
+    .zones-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+    .zone{border-radius:22px;min-height:150px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .zone-label{font-weight:700;font-size:1rem;padding:7px 16px;border-radius:999px}
+    .zone-content{width:100%;flex:1;display:flex;flex-wrap:wrap;gap:9px;justify-content:center;align-items:center;min-height:80px}
+    .zone-decimal{border:3px dashed var(--gl);background:linear-gradient(135deg,#f0f3ff,#f8f9ff)}
+    .zone-decimal .zone-label{background:linear-gradient(135deg,var(--gl),#7089ef);color:#fff}
+    .zone-integer{border:3px dashed #d2b366;background:linear-gradient(135deg,#fff8e8,#fffdf5)}
+    .zone-integer .zone-label{background:linear-gradient(135deg,var(--go),#d7772f);color:#fff}
+    .empty-hint{color:#b0a090;font-size:.9rem;font-weight:600;text-align:center;width:100%}
+    .n-chip{min-width:70px;min-height:58px;border-radius:16px;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:.18s;background:linear-gradient(135deg,#fff,#fff1ca);border:3px solid #ecd59f;color:var(--gb);box-shadow:0 6px 14px rgba(0,0,0,.06)}
+    .n-chip:hover{transform:translateY(-2px)}.n-chip.dec-chip{background:linear-gradient(135deg,#e8edff,#dce4ff);border-color:#a0b4f8;color:#2d4acc}
+    .n-chip.int-chip{background:linear-gradient(135deg,#fff3e0,#ffe9c8);border-color:#f0c070}
+    .n-chip.correct{border-color:var(--ok)!important;box-shadow:0 0 0 3px rgba(115,162,29,.28)}
+    .n-chip.wrong{border-color:var(--err)!important;box-shadow:0 0 0 3px rgba(217,77,63,.28)}
+    .pool-wrap{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#fff;border:2px solid #f3e1bb;border-radius:18px;padding:12px;width:100%}
+
+    /* comparar decimales */
+    .cmp-arena{width:100%;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+    .cmp-chip{min-width:110px;min-height:88px;border-radius:22px;font-size:2rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:.18s;background:linear-gradient(135deg,#fff,#fff1ca);border:3px solid #ecd59f;box-shadow:0 8px 20px rgba(0,0,0,.07)}
+    .cmp-chip:hover{transform:translateY(-3px) scale(1.04)}.cmp-chip.selected{outline:4px solid rgba(74,103,214,.38);transform:scale(1.06)}
+    .cmp-chip.correct-chip{background:linear-gradient(135deg,#e8fff0,#d0f5dc)!important;border-color:var(--ok)!important;color:#256d1a!important}
+    .cmp-chip.wrong-chip{background:linear-gradient(135deg,#fff2ef,#fde0dc)!important;border-color:var(--err)!important;color:#9b2c21!important}
+    .vs-badge{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--go),#d7772f);color:#fff;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(194,92,38,.28)}
+    .drop-target{width:120px;height:120px;border-radius:50%;border:3px dashed var(--gy);background:linear-gradient(135deg,#fffbe8,#fff8d0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:.18s;cursor:pointer;font-size:1.85rem;margin:0 auto}
+    .drop-target.filled{border-style:solid;border-color:var(--gy);background:linear-gradient(135deg,#fff4c2,#ffe87a)}
+    .drop-target.correct-zone{border-color:var(--ok)!important;background:linear-gradient(135deg,#efffea,#d2f5c0)!important}
+    .drop-target.wrong-zone{border-color:var(--err)!important;background:linear-gradient(135deg,#fff2ef,#fde0dc)!important}
+    .drop-num{font-size:1.8rem;font-weight:700;display:none}
+
+    /* gráfica */
+    .chart-outer{width:100%;background:#fff;border:2px solid #f1dfb8;border-radius:20px;padding:16px 16px 8px;box-shadow:0 6px 20px rgba(114,39,14,.06)}
+    .chart-wrap{display:flex;align-items:flex-end;gap:0;position:relative}
+    .y-axis-outer{display:flex;flex-direction:column;width:34px;flex-shrink:0}
+    .y-tick{font-size:.72rem;font-weight:700;color:#a08060;text-align:right;padding-right:5px;line-height:1}
+    .chart-body{flex:1;position:relative}
+    .grid-lines{position:absolute;top:0;left:0;right:0;pointer-events:none;display:flex;flex-direction:column}
+    .grid-line{flex-shrink:0;border-top:1px dashed #f0dfc0}
+    .grid-line.zero-line{border-top:2px solid #d0b070}
+    .bars-row{display:flex;align-items:flex-end;gap:9px;padding:0 7px;position:relative;z-index:1;height:220px}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+    .bar-drop{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+    .bar-slot{width:100%;min-width:34px;border-radius:9px 9px 0 0;border:3px dashed #d0b87a;background:linear-gradient(180deg,#fffbe8,#fff5cc);height:26px;min-height:26px;transition:all .22s;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+    .bar-slot .slot-hint{font-size:.68rem;color:#b09060;font-weight:700}
+    .bar-slot.filled{border-style:solid}
+    .bar-val-label{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:.85rem;font-weight:700;background:#fff;padding:2px 6px;border-radius:7px;border:1px solid #f0dfc0;white-space:nowrap}
+    .bar-label{margin-top:5px;font-size:.74rem;font-weight:700;text-align:center;line-height:1.2;max-width:58px;overflow:hidden;text-overflow:ellipsis}
+    .x-axis-line{height:2px;background:#d0b070;margin:0 7px}
+    .bar-chip{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;user-select:none;transition:.18s}
+    .bar-chip:hover:not(.used){transform:translateY(-3px)}
+    .bar-chip.selected .bar-chip-visual{outline:4px solid rgba(74,103,214,.38)}
+    .bar-chip-visual{border-radius:7px 7px 0 0;width:40px;transition:.14s}
+    .bar-chip-num{font-size:.9rem;font-weight:700;text-align:center;background:#fff8e8;border:1px solid #f0dfb0;border-radius:7px;padding:2px 7px;min-width:26px}
+    .bar-chip.used{opacity:.35;pointer-events:none}
+    .bars-pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#fff;border:2px solid #f3e1bb;border-radius:18px;padding:12px;width:100%}
+    .data-ref{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;width:100%}
+    .data-card{background:#fff;border:2px solid #f1dfb8;border-radius:14px;padding:9px 14px;display:flex;align-items:center;gap:7px;font-weight:700;font-size:.96rem;box-shadow:0 4px 12px rgba(0,0,0,.05);min-width:112px;justify-content:center}
+
+    /* RESULT */
+    .result-wrap{min-height:calc(100vh - 28px);display:flex;align-items:center;justify-content:center}
+    .result-card{width:min(900px,100%);padding:28px;text-align:center}
+    .result-title{font-size:clamp(1.9rem,4vw,2.9rem);margin-bottom:9px}
+    .result-score{font-size:clamp(2.4rem,5.5vw,4.2rem);color:var(--go);margin-bottom:10px}
+    .result-message{max-width:680px;margin:0 auto 16px;line-height:1.6;font-size:1.05rem;color:#714633}
+    .result-list{max-width:740px;margin:16px auto 0;text-align:left;background:#fffaf0;border:2px solid #f1dfb8;border-radius:18px;padding:14px 16px;line-height:1.6;color:#704934;font-size:.96rem}
+    .cert-box{max-width:740px;margin:18px auto 0;background:linear-gradient(135deg,#fff8ea,#fff2d8);border:2px solid #ffd48e;border-radius:20px;padding:18px;box-shadow:0 6px 18px rgba(114,39,14,.08)}
+    .cert-box input{width:min(400px,100%);padding:13px 15px;border-radius:13px;border:2px solid #e5c47a;font-family:'Fredoka',sans-serif;font-size:1rem;outline:none;margin:10px auto;display:block;text-align:center}
+    .result-actions{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+
+    /* partículas */
+    .floating-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .star{position:absolute;font-size:1.4rem;opacity:0;animation:starBlink ease-in-out infinite;filter:drop-shadow(0 0 7px rgba(255,215,0,.9));user-select:none}
+    .star:nth-child(1){top:4%;left:6%;font-size:1.1rem;animation-duration:2.8s}
+    .star:nth-child(2){top:7%;left:50%;font-size:1.7rem;animation-duration:3.3s;animation-delay:.6s}
+    .star:nth-child(3){top:3%;left:84%;font-size:1.2rem;animation-duration:2.5s;animation-delay:1.1s}
+    .star:nth-child(4){top:91%;left:12%;animation-duration:3.6s;animation-delay:1.5s}
+    .star:nth-child(5){top:94%;left:72%;font-size:1.3rem;animation-duration:3.0s;animation-delay:.9s}
+    .star:nth-child(6){top:44%;left:1%;font-size:.95rem;animation-duration:3.2s;animation-delay:2.1s}
+    .star:nth-child(7){top:54%;left:98%;font-size:1.4rem;animation-duration:2.7s;animation-delay:1.8s}
+    @keyframes starBlink{0%,100%{opacity:0;transform:scale(.6) rotate(0deg)}40%{opacity:1;transform:scale(1.4) rotate(25deg)}70%{opacity:.7;transform:scale(1.1) rotate(-10deg)}}
+    .math-sym{position:absolute;font-family:'Fredoka',sans-serif;font-weight:700;opacity:0;animation:mathFloat ease-in-out infinite;user-select:none;pointer-events:none}
+    .math-sym:nth-child(8){top:17%;left:3%;font-size:2.4rem;color:rgba(194,92,38,.5);animation-duration:6.5s}
+    .math-sym:nth-child(9){top:70%;left:5%;font-size:1.9rem;color:rgba(115,162,29,.55);animation-duration:7.2s;animation-delay:1.8s}
+    .math-sym:nth-child(10){top:22%;left:92%;font-size:2.6rem;color:rgba(226,188,51,.65);animation-duration:5.8s;animation-delay:.9s}
+    .math-sym:nth-child(11){top:63%;left:89%;font-size:2rem;color:rgba(194,92,38,.5);animation-duration:8.5s;animation-delay:3s}
+    .math-sym:nth-child(12){top:46%;left:0%;font-size:2.1rem;color:rgba(115,162,29,.45);animation-duration:7s;animation-delay:3.5s}
+    @keyframes mathFloat{0%{opacity:0;transform:translateY(0) rotate(0deg) scale(.7)}20%{opacity:.82}50%{opacity:.68;transform:translateY(-28px) rotate(14deg) scale(1.12)}80%{opacity:.82}100%{opacity:0;transform:translateY(0) rotate(-10deg) scale(.7)}}
+    .rainbow-bar{position:fixed;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#ff6b6b,#ffa94d,#ffd43b,#69db7c,#4dabf7,#cc5de8,#ff6b6b);background-size:200% 100%;animation:rainbowSlide 4s linear infinite;z-index:100;border-radius:4px 4px 0 0;pointer-events:none}
+    @keyframes rainbowSlide{from{background-position:0% center}to{background-position:200% center}}
+
+
+    .answer-stack{display:grid;gap:14px;margin:12px auto 0;max-width:620px}
+    .answer-shell{display:grid;gap:8px;justify-items:center}
+    .answer-box{min-height:72px;font-size:1.15rem}
+    .selection-hint{font-size:.82rem;color:#9d7446;font-weight:600}
+    .dnd-chip,.dnd-source{cursor:grab}
+    .dnd-chip:active,.dnd-source:active{cursor:grabbing}
+    .drag-over{transform:scale(1.02);border-color:var(--gl)!important;box-shadow:0 0 0 5px rgba(74,103,214,.18)!important}
+    .drag-selected{outline:4px solid rgba(74,103,214,.28)}
+    .bar-slot.correct{border-color:var(--ok)!important;box-shadow:0 0 0 4px rgba(115,162,29,.22)!important}
+    .bar-slot.wrong{border-color:var(--err)!important;box-shadow:0 0 0 4px rgba(217,77,63,.18)!important}
+    .topbar > div:first-child,.main-panel,.exercise-card,.chart-outer,.chart-body,.table-wrap{min-width:0}
+
+    /* ASISTENTE FLOTANTE EN GAME-SCREEN */
+    .game-gauss-chat-wrapper{position:fixed;right:18px;bottom:24px;z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:12px;width:fit-content;pointer-events:none}
+    .game-gauss-bubble{max-width:280px;background:#ffffff;color:#333333;border-radius:18px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,0.18);font-size:15px;line-height:1.4;position:relative;opacity:0;transform:translateY(15px) scale(.95);pointer-events:none;transition:opacity .35s ease,transform .35s ease;border:2px solid rgba(226,188,51,0.28)}
+    .game-gauss-bubble.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+    .game-gauss-bubble::after{content:"";position:absolute;right:44px;bottom:-8px;width:16px;height:16px;background:#fff;transform:rotate(45deg);border-radius:3px;border-right:2px solid rgba(226,188,51,0.18);border-bottom:2px solid rgba(226,188,51,0.18)}
+    .game-gauss-title{font-weight:700;color:var(--go);margin-bottom:4px;font-size:16px}
+    .game-gauss-chat-btn{width:180px;height:180px;border:none;border-radius:50%;background:linear-gradient(135deg,#E2BC33,#C25C26);box-shadow:0 10px 24px rgba(0,0,0,0.22);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;transition:transform .25s ease,box-shadow .25s ease;flex-shrink:0;padding:0;animation:gaussFloatGame 2.8s ease-in-out infinite}
+    .game-gauss-chat-btn:hover,.game-gauss-chat-btn:focus-visible{transform:scale(1.06);box-shadow:0 14px 28px rgba(0,0,0,0.28);outline:none}
+    .game-gauss-chat-btn img{width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%}
+    .game-gauss-chat-btn.open{animation:none;transform:scale(1.04);box-shadow:0 0 0 6px rgba(226,188,51,0.18),0 14px 30px rgba(0,0,0,0.26)}
+    .game-gauss-chat-btn.is-speaking{animation:none;transform:scale(1.08);box-shadow:0 0 0 8px rgba(115,162,29,0.22),0 0 22px rgba(226,188,51,0.32),0 16px 34px rgba(0,0,0,0.28)}
+    @keyframes gaussFloatGame{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+    @media(max-width:960px){
+      .welcome,.game-screen{grid-template-columns:1fr}
+      .side-panel{position:static}
+      .meta-grid{grid-template-columns:repeat(2,1fr)}
+      .welcome-right{min-height:380px}
+      .progress-card{width:100%;min-width:0}
+      .topbar{align-items:stretch}
+      .game-gauss-chat-wrapper{right:14px;bottom:14px}
+      .game-gauss-chat-btn{width:100px;height:100px}
+      .game-gauss-bubble{max-width:230px;font-size:14px}
+    }
+    @media(max-width:640px){
+      body{padding:10px}
+      .welcome-left,.main-panel,.side-panel,.result-card{padding:16px}
+      .meta-grid{grid-template-columns:1fr}
+      .result-actions,.bottom-actions,.actions{flex-direction:column}
+      .btn{width:100%}
+      .columns-grid,.zones-wrap{grid-template-columns:1fr}
+      .compare-row,.eq-area,.visual-row,.cmp-arena{gap:10px}
+      .num-box{min-width:92px;min-height:78px}
+      .sym-slot{width:68px;height:68px}
+      .drop-target{width:100px;height:100px}
+      .chart-outer{padding:12px 10px 6px}
+      .bars-row{gap:6px;padding:0 4px}
+      .bar-label{max-width:50px;font-size:.68rem}
+      .bar-chip-visual{width:32px}
+      .data-card{flex:1 1 130px;min-width:unset}
+      .game-gauss-chat-wrapper{right:10px;bottom:10px}
+      .game-gauss-chat-btn{width:90px;height:90px}
+      .game-gauss-bubble{max-width:200px;font-size:13px;padding:12px 13px}
+      .game-gauss-bubble::after{right:28px}
+    }
+    @media(max-width:400px){
+      .game-gauss-chat-btn{width:80px;height:80px}
+      .game-gauss-bubble{max-width:180px;font-size:12.5px}
+    }
+  </style>
+</head>
+<body>
+<div class="floating-particles">
+  <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div><div class="star">✨</div>
+  <div class="star">⭐</div><div class="star">✨</div><div class="star">⭐</div>
+  <div class="math-sym">+</div><div class="math-sym">−</div><div class="math-sym">×</div>
+  <div class="math-sym">÷</div><div class="math-sym">=</div>
+</div>
+<div class="rainbow-bar"></div>
+<audio id="musicaBg" loop preload="auto"><source src="../../musica/enriquecedora1.mp3" type="audio/mpeg"></audio>
+
+<div class="app">
+
+<!-- ══ BIENVENIDA ══ -->
+<section class="screen active" id="screenWelcome">
+  <div class="welcome">
+    <div class="card welcome-left">
+      <div class="badge">🏆 Evaluación General</div>
+      <h1 class="big-title">Gran Evaluación con Gauss</h1>
+      <p class="big-sub">Resolverás <strong>28 ejercicios</strong> — 7 de cada unidad: números, sumas/restas, multiplicación/división y decimales. Solo quien complete todo correctamente recibirá su diploma.</p>
+      <div class="gauss-chat">
+        <div class="gauss-chat-header"><span class="dot-live"></span><span>Puedes realizar la evaluación en un formulario</span></div>
+        <div class="gauss-chat-body">
+        <center>
+        <img src="../imagenes/formulario.png" alt="formulario" style="width:30%;height:auto;">
+        <br>
+        <br>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScdj_hQber5_gg-YBTdCMShgaJrpysc6jvZ8LzsulJIl2DUjw/viewform" class="btn btn-light">Entrar al formulario</a>
+        </center>
+        </div>
+      </div>
+     
+      <div class="actions">
+        <button class="btn btn-primary" onclick="startEvaluation()">Comenzar evaluación</button>
+        <button type="button" class="btn btn-outline-success" onclick="goMenu()">Volver al menú</button>
+      </div>
+    </div>
+    <div class="card welcome-right">
+      <div class="gauss-wrap">
+        <div class="gauss-circle" id="owlWelcome">
+          <img class="gauss-img" src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:5.5rem;line-height:1\'>🦉</div>';">
+        </div>
+        <div class="voz-estado inactiva" id="vozEstado"><span>🔊</span><span id="vozTexto">Cargando voz...</span></div>
+        <div class="gauss-name">Gauss · Gran Evaluación</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ JUEGO ══ -->
+<section class="screen" id="screenGame">
+  <div class="topbar">
+    <div>
+      <h2>Gran Evaluación Final</h2>
+      <p id="exerciseSubtitle">Resuelve cada reto correctamente</p>
+    </div>
+    <div class="progress-card">
+      <div class="progress-meta"><span id="exerciseCounter">Ejercicio 1 de 28</span><span id="scoreCounter">Puntos: 0</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <div class="game-screen">
+    <div class="card main-panel">
+      <div class="meta-grid">
+        <div class="meta-box"><strong>Unidades</strong><span>1 – 4</span></div>
+        <div class="meta-box"><strong>Ejercicios</strong><span>28</span></div>
+        <div class="meta-box"><strong>Objetivo</strong><span>Evaluar todo</span></div>
+        <div class="meta-box"><strong>Progreso</strong><span id="miniProgress">1/28</span></div>
+      </div>
+      <div class="instructions" id="instructionBox"><strong>Instrucciones:</strong> Lee bien y responde correctamente.</div>
+      <div class="exercise-card">
+        <div id="unitBadgeArea"></div>
+        <h3 class="exercise-title" id="exerciseTitle">Cargando ejercicio...</h3>
+        <div id="exerciseArea"></div>
+      </div>
+      <div class="feedback info" id="feedbackBox">Gauss dice: Lee con calma y responde con atención.</div>
+      <div class="bottom-actions">
+        <button class="btn btn-warning" id="checkBtn" onclick="checkAnswer()">Comprobar</button>
+        <button class="btn btn-blue" id="hintBtn" onclick="showHint()">💡 Pista</button>
+        <button class="btn btn-secondary" id="nextBtn" style="display:none" onclick="nextExercise()">Siguiente ejercicio</button>
+        <button class="btn btn-light" onclick="restartEvaluation()">Reiniciar</button>
+        <button type="button" class="btn btn-outline-success" onclick="goMenu()">Volver al menú</button>
+      </div>
+    </div>
+
+    <div class="card side-panel">
+      <div class="gauss-side">
+        <div class="mini-img-wrap" id="owlSide">
+          <img src="../../imagenes/gauss.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:2.8rem\'>🦉</div>';">
+        </div>
+        <h3 style="color:var(--gb);margin-bottom:8px">Gauss te acompaña</h3>
+        <div class="side-chat">
+          <div class="side-chat-header"><span class="dot-live"></span><span>Gauss habla</span></div>
+          <div class="side-chat-body" id="sideMessage">Piensa antes de responder.</div>
+        </div>
+        <div class="side-badge" id="typeBadge">Reto</div>
+        <div class="attempts-chip" id="attemptCounter">Intentos: 0</div>
+        <div class="stars" id="starsBox">⭐</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="game-gauss-chat-wrapper" id="gameGaussWrapper">
+    <div class="game-gauss-bubble" id="gameGaussBubble" role="status" aria-live="polite">
+      <div class="game-gauss-title" id="gameGaussBubbleTitle">¡Hola! Soy Gauss 👋</div>
+      <div id="gameGaussBubbleText">Estoy aquí para ayudarte en cada ejercicio.</div>
+    </div>
+
+    <button class="game-gauss-chat-btn" id="gameGaussBtn" aria-label="Abrir o cerrar el asistente Gauss" aria-expanded="false" type="button">
+      <img src="../../imagenes/Gauss.png" id="gameGaussBtnImg" data-idle-src="../../imagenes/Gauss.png" data-speaking-src="../../imagenes/gauss2.gif" data-fallback-src="../../imagenes/gauss1.gif" alt="" aria-hidden="true" onerror="if(this.dataset.fallbackApplied!=='1'){this.dataset.fallbackApplied='1';this.src=this.dataset.fallbackSrc||'../../imagenes/gauss1.gif';}else{this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:3.5rem\'>🦉</div>'; }">
+    </button>
+  </div>
+
+</section>
+
+<!-- ══ RESULTADO ══ -->
+<section class="screen" id="screenResult">
+  <div class="result-wrap">
+    <div class="card result-card">
+      <div class="result-img-wrap" id="owlResult">
+        <img src="../../imagenes/gauss1.gif" alt="Gauss" onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'font-size:3.8rem\'>🦉</div>';">
+      </div>
+      <h2 class="result-title">¡Terminaste la Gran Evaluación!</h2>
+      <div class="result-score" id="finalScore">0 / 28</div>
+      <div class="stars" id="resultStars">⭐ ⭐ ⭐</div>
+      <p class="result-message" id="resultMessage"></p>
+      <div class="gauss-chat" style="max-width:600px;margin:0 auto 14px">
+        <div class="gauss-chat-header"><span class="dot-live"></span><span>Gauss está hablando</span></div>
+        <div class="gauss-chat-body" id="resultSpeech"></div>
+      </div>
+      <div class="voz-estado inactiva" id="resultVozEstado"><span>🔊</span><span id="resultVozTexto">Voz lista</span></div>
+      <div class="result-list" id="resultSummary"></div>
+      <div class="cert-box" id="certificateBox" style="display:none">
+        <h3 style="margin-bottom:9px">🏆 Reclamar diploma</h3>
+        <p>Escribe tu nombre completo para colocarlo en tu diploma.</p>
+        <input type="text" id="studentName" placeholder="Escribe tu nombre completo">
+        <div style="display:flex;justify-content:center;margin-top:10px">
+          <button class="btn btn-primary" onclick="claimCertificate()">Reclamar diploma</button>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-primary" onclick="restartEvaluation()">Intentar otra vez</button>
+        <button class="btn btn-light" onclick="goMenu()">Volver al inicio</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- .app -->
+
+<script>
+/* ════════════════════ AUDIO Y VOZ ════════════════════ */
+const bgAudio=document.getElementById('musicaBg');
+const vozEl=document.getElementById('vozEstado');
+const vozTxt=document.getElementById('vozTexto');
+const owlW=document.getElementById('owlWelcome');
+const owlS=document.getElementById('owlSide');
+const owlR=document.getElementById('owlResult');
+const gameGaussBubble=document.getElementById('gameGaussBubble');
+const gameGaussBubbleTitle=document.getElementById('gameGaussBubbleTitle');
+const gameGaussBubbleText=document.getElementById('gameGaussBubbleText');
+const gameGaussBtn=document.getElementById('gameGaussBtn');
+const gameGaussBtnImg=document.getElementById('gameGaussBtnImg');
+let vozGauss=null,vocesOK=false,vozOn=false,gesto=false,autoOK=false,musicOK=false,speaking=false,audioCtx=null,watchdog=null;
+let intWelcome=null,intSide=null,intResult=null;
+let gameGaussHideTimer=null,gameGaussLastMessage='Estoy aquí para ayudarte en cada ejercicio.';
+
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playOK(){try{const c=getCtx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.1;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start(t);o.stop(t+.4);});}catch(e){}}
+function playWrong(){try{const c=getCtx();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(300,c.currentTime);o.frequency.linearRampToValueAtTime(150,c.currentTime+.4);g.gain.setValueAtTime(.22,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.45);o.start(c.currentTime);o.stop(c.currentTime+.45);}catch(e){}}
+function playHint(){try{const c=getCtx();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=880;g.gain.setValueAtTime(.18,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.start(c.currentTime);o.stop(c.currentTime+.5);}catch(e){}}
+function playResult(good){try{const c=getCtx();if(good){[523,659,784,1047,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.13;g.gain.setValueAtTime(.22,t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.start(t);o.stop(t+.35);});}else{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.setValueAtTime(400,c.currentTime);o.frequency.linearRampToValueAtTime(200,c.currentTime+.6);g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.65);o.start(c.currentTime);o.stop(c.currentTime+.65);}}catch(e){}}
+function setVozStatus(st,msg){if(vozEl&&vozTxt){vozEl.className='voz-estado '+st;vozTxt.textContent=msg;}const r=document.getElementById('resultVozEstado'),rt=document.getElementById('resultVozTexto');if(r&&rt){r.className='voz-estado '+st;rt.textContent=msg;}}
+function updateGameGaussBubble(texto,titulo='Gauss te orienta 🦉'){if(!gameGaussBubbleText||!gameGaussBubbleTitle)return;gameGaussBubbleTitle.textContent=titulo;gameGaussBubbleText.textContent=texto||'Estoy aquí para ayudarte en cada ejercicio.';gameGaussLastMessage=texto||'Estoy aquí para ayudarte en cada ejercicio.';}
+function showGameGaussBubble(ms=4500){if(!gameGaussBubble||!gameGaussBtn)return;if(gameGaussHideTimer){clearTimeout(gameGaussHideTimer);gameGaussHideTimer=null;}gameGaussBubble.classList.add('show');gameGaussBtn.classList.add('open');gameGaussBtn.setAttribute('aria-expanded','true');if(typeof ms==='number'&&ms>0){gameGaussHideTimer=setTimeout(hideGameGaussBubble,ms);}}
+function hideGameGaussBubble(){if(!gameGaussBubble||!gameGaussBtn)return;if(gameGaussHideTimer){clearTimeout(gameGaussHideTimer);gameGaussHideTimer=null;}gameGaussBubble.classList.remove('show');gameGaussBtn.classList.remove('open');gameGaussBtn.setAttribute('aria-expanded','false');}
+function setGameGaussSpeaking(on){if(!gameGaussBtn)return;gameGaussBtn.classList.toggle('is-speaking',!!on);if(gameGaussBtnImg){const idle=gameGaussBtnImg.dataset.idleSrc||gameGaussBtnImg.src;const speakingSrc=gameGaussBtnImg.dataset.speakingSrc||idle;gameGaussBtnImg.src=on?speakingSrc:idle;}}
+function initGameGauss(){if(!gameGaussBtn||!gameGaussBubble)return;updateGameGaussBubble(gameGaussLastMessage,'¡Hola! Soy Gauss 👋');gameGaussBtn.addEventListener('click',()=>{const open=gameGaussBubble.classList.contains('show');if(open){hideGameGaussBubble();return;}updateGameGaussBubble(gameGaussLastMessage,'¡Hola! Soy Gauss 👋');showGameGaussBubble(4000);});}
+function hablaOwl(){[owlW,owlS,owlR].forEach(el=>el&&el.classList.add('talking'));setGameGaussSpeaking(true);}
+function callaOwl(){[owlW,owlS,owlR].forEach(el=>el&&el.classList.remove('talking'));setGameGaussSpeaking(false);}
+function loadVoices(){if(!('speechSynthesis'in window))return false;const l=window.speechSynthesis.getVoices();if(!l.length)return false;vozGauss=l.find(v=>/Monica|Paulina|Helena|Sandra|Sofia|Sabina|Luciana/i.test(v.name)&&/es/i.test(v.lang))||l.find(v=>/es-HN/i.test(v.lang))||l.find(v=>/es-MX/i.test(v.lang))||l.find(v=>/es-ES/i.test(v.lang))||l.find(v=>/^es/i.test(v.lang))||l[0];vocesOK=true;return true;}
+if('speechSynthesis'in window){loadVoices();window.speechSynthesis.onvoiceschanged=()=>loadVoices();setVozStatus('inactiva','Toca la pantalla para activar voz');}else{setVozStatus('inactiva','Navegador sin voz');}
+function typeWrite(elId,txt,vel=20,intVar){return new Promise(r=>{const el=document.getElementById(elId);if(!el){r();return;}if(intVar&&window[intVar])clearInterval(window[intVar]);el.textContent='';el.style.borderRight='3px solid var(--go)';let i=0;const iv=setInterval(()=>{el.textContent+=txt.charAt(i);i++;if(i>=txt.length){clearInterval(iv);el.style.borderRight='none';r();}},vel);if(intVar)window[intVar]=iv;});}
+async function hablar(txt,target){if(!txt)return;if(target==='side'){typeWrite('sideMessage',txt);updateGameGaussBubble(txt,'Gauss te orienta 🦉');showGameGaussBubble(5000);}else if(target==='result')typeWrite('resultSpeech',txt,22);else typeWrite('welcomeSpeech',txt);if(!vozOn||!('speechSynthesis'in window))return;if(speaking)window.speechSynthesis.cancel();if(!vocesOK)loadVoices();await new Promise(r=>setTimeout(r,100));const m=new SpeechSynthesisUtterance(txt);m.lang=vozGauss?.lang||'es-ES';m.rate=1;m.pitch=1.3;m.volume=1;if(vozGauss)m.voice=vozGauss;speaking=true;hablaOwl();setVozStatus('activa','Gauss hablando...');clearTimeout(watchdog);watchdog=setTimeout(()=>{speaking=false;callaOwl();setVozStatus('activa','Voz lista ✓');},14000);const rv=setInterval(()=>{if(window.speechSynthesis.paused)window.speechSynthesis.resume();},1000);const limpiar=()=>{clearInterval(rv);clearTimeout(watchdog);speaking=false;callaOwl();};m.onend=()=>{limpiar();setVozStatus('activa','Voz lista ✓');};m.onerror=(e)=>{limpiar();if(e.error!=='interrupted'&&e.error!=='canceled')setVozStatus('inactiva','Toca para activar voz');};try{window.speechSynthesis.speak(m);}catch(e){limpiar();}}
+function startMusic(){if(!bgAudio||musicOK)return;bgAudio.volume=.28;bgAudio.play().then(()=>musicOK=true).catch(()=>{});}
+function activarGesto(){startMusic();if(gesto)return;gesto=true;vozOn=true;if(!vocesOK)loadVoices();setVozStatus('activa','Voz lista ✓');}
+function autoStart(){if(autoOK)return;autoOK=true;vozOn=true;gesto=true;if(!vocesOK)loadVoices();setVozStatus('activa','Iniciando audio...');startMusic();setTimeout(()=>hablar('¡Hola! Esta es la gran evaluación con 28 retos de todas las unidades. ¡Confía en lo que has aprendido!','welcomeSpeech'),500);}
+['click','touchstart'].forEach(e=>document.addEventListener(e,activarGesto,{once:true}));
+window.addEventListener('load',autoStart);
+initGameGauss();
+
+/* ════════════════════ DATOS ════════════════════ */
+const TOTAL=28;
+const EMOJIS=["🍎","⭐","⚽","🧸","🌸","🐟","🎈","🍊","🚗","🦋","🧩","🥕","🐝","🍓","🪁"];
+const BAR_COLORS=[{main:'#e84545',light:'#ff9090'},{main:'#4a67d6',light:'#8ca4f5'},{main:'#73A21D',light:'#a6d43a'},{main:'#E2BC33',light:'#f5d85a'},{main:'#9b59d6',light:'#c890f5'},{main:'#e07830',light:'#f5a868'}];
+
+const positivos=["¡Muy bien! Respuesta correcta.","¡Excelente! Lo resolviste perfectamente.","¡Fantástico! Sigues avanzando.","¡Correcto! Sigue así.","¡Genial! Estás demostrando todo lo aprendido."];
+const reintentos=["Intenta otra vez con más atención.","Casi. Revisa con calma.","No pasa nada. Repite el reto.","Observa mejor los detalles.","Lee de nuevo y vuelve a intentarlo."];
+const hintLib={
+  count:["Cuenta uno por uno, sin saltarte ninguno.","Puedes señalar mentalmente cada objeto.","Agrupa de 5 en 5 para facilitar el conteo."],
+  words:["Piensa primero en la decena y luego en la unidad.","'Veinti' siempre va seguido de un número del 1 al 9.","Los números 10-15 tienen nombres especiales: diez, once, doce..."],
+  place:["Primera cifra = centenas, segunda = decenas, tercera = unidades.","345 = 3 centenas, 4 decenas, 5 unidades.","Cuenta las cifras de izquierda a derecha."],
+  compare:["El símbolo < se abre hacia el número mayor.","Compara primero centenas, luego decenas, luego unidades.","Si ambos son iguales, usa el símbolo =."],
+  order:["Ascendente = de menor a mayor.","Descendente = de mayor a menor.","Busca primero el número más pequeño (o más grande)."],
+  union:["Une solo los objetos del tipo indicado.","No todos los objetos cuentan.","Después de unir, cuenta el total."],
+  remove:["Quita solo lo indicado.","La cantidad final debe ser menor.","Cuenta los que quedan después de quitar."],
+  operation:["Si es suma, el resultado crece.","Si es resta, el resultado disminuye.","Cuenta los objetos para confirmar."],
+  market:["'Compró' o 'agregó' suele indicar suma.","'Vendió' o 'quitó' suele indicar resta.","Piensa qué le pasa a la cantidad total."],
+  result:["Elimina las opciones imposibles.","Compara el resultado con los números de la operación.","Usa los objetos visuales para verificar."],
+  group:["Grupos × objetos por grupo = multiplicación.","3 grupos de 4 se escribe 3 × 4.","Cuenta primero los grupos, luego los objetos."],
+  table_mul:["Usa sumas repetidas para verificar.","La tabla del 2 es contar de 2 en 2.","Cualquier número × 1 da el mismo número."],
+  distribute:["Total ÷ recipientes = cantidad por recipiente.","Todos los grupos deben tener la misma cantidad.","Piensa cuántas veces cabe el divisor."],
+  mixed:["× es multiplicar, ÷ es dividir.","La división es la inversa de la multiplicación.","Si 6 × 4 = 24, entonces 24 ÷ 4 = 6."],
+  classify:["Busca el punto decimal en cada número.","Si tiene punto, es decimal; si no, es entero.","Los números como 3.5 tienen parte decimal."],
+  compare_dec:["Compara primero la parte entera.","Si la parte entera es igual, mira las décimas.","El mayor está más a la derecha en la recta numérica."],
+  table_dec:["Lee la fila y la columna del espacio vacío.","Usa el total como pista si aparece.","Descarta los valores que no encajan."],
+  chart:["La altura de la barra = el valor del dato.","El eje Y te ayuda a medir la barra correcta.","La barra más alta tiene el valor mayor."]
+};
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function nToWords(n){const u=["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve"];const t=["diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve"];const d=["","","veinte","treinta","cuarenta","cincuenta","sesenta","setenta","ochenta","noventa"];if(n<10)return u[n];if(n<20)return t[n-10];if(n<30){if(n===20)return"veinte";return"veinti"+u[n-20];}const tv=Math.floor(n/10),uv=n%10;if(uv===0)return d[tv];return d[tv]+" y "+u[uv];}
+function createOptions(correct,mn=0,mx=12){const o=[correct];while(o.length<4){let f=correct+rand(-3,3);if(f<mn||f>mx||o.includes(f))f=rand(mn,mx);if(!o.includes(f))o.push(f);}return shuffle(o);}
+
+/* ════ GENERADORES UNIDAD 1 (7 tipos distintos) ════ */
+function genCount(){
+  const amt=rand(3,15),obj=pick(EMOJIS);
+  const opts=new Set([amt]);
+  while(opts.size<4){const n=rand(1,20);if(n!==amt)opts.add(n);}
+  return{unit:1,type:'count',title:'Cuenta los objetos',subtitle:'Reconocimiento de cantidades',instruction:'Observa cuántos objetos hay y elige el número correcto.',hint:'count',amount:amt,object:obj,answer:amt,options:shuffle([...opts])};
+}
+function genWords(){
+  const num=rand(12,99);
+  const opts=new Set([num]);
+  while(opts.size<4){const n=rand(12,99);if(n!==num)opts.add(n);}
+  return{unit:1,type:'words',title:'Lee y elige el número',subtitle:'Lectura y escritura de números',instruction:'Lee el número en palabras y selecciona su forma numérica.',hint:'words',words:nToWords(num),answer:num,options:shuffle([...opts])};
+}
+function genPlace(){
+  const num=rand(105,999);
+  const digs=String(num).split('');
+  return{unit:1,type:'place',title:'Ubica cada cifra',subtitle:'Valor posicional',instruction:'Coloca cada cifra en centenas, decenas y unidades.',hint:'place',number:num,digits:shuffle([...digs]),answer:{hundreds:digs[0],tens:digs[1],units:digs[2]}};
+}
+function genCompare(){
+  let l=rand(10,999),r=rand(10,999);
+  if(Math.random()<.25)r=l;
+  let ans='=';if(l>r)ans='>';if(l<r)ans='<';
+  return{unit:1,type:'compare',title:'Compara los números',subtitle:'Mayor, menor o igual',instruction:'Selecciona el símbolo correcto entre los dos números.',hint:'compare',left:l,right:r,answer:ans};
+}
+function genOrder(){
+  const cnt=Math.random()>.5?4:5,mode=Math.random()>.5?'asc':'desc';
+  const pool=new Set();
+  while(pool.size<cnt)pool.add(rand(10,150));
+  const nums=[...pool];
+  const sol=[...nums].sort((a,b)=>mode==='asc'?a-b:b-a);
+  return{unit:1,type:'order',title:'Ordena los números',subtitle:'Orden ascendente y descendente',instruction:'Organiza los números en el orden que se indica.',hint:'order',mode,numbers:shuffle(nums),answer:sol};
+}
+
+/* ════ GENERADORES UNIDAD 2 ════ */
+const itemThemesU=[
+  {title:'Une solo las manzanas.',hint:'Las peras no cuentan.',good:['🍎','🍏'],bad:['🍐']},
+  {title:'Une solo las estrellas.',hint:'Las lunas no cuentan.',good:['⭐','🌟'],bad:['🌙']},
+  {title:'Une solo las flores.',hint:'Las hojas secas no se unen.',good:['🌸','🌼'],bad:['🍂']}
+];
+const itemThemesR=[
+  {title:'Quita solo las pelotas.',hint:'Los carros no se quitan.',good:['⚽','🏀'],bad:['🚗']},
+  {title:'Quita solo los peces.',hint:'Los caracoles no se quitan.',good:['🐟'],bad:['🐌']},
+  {title:'Quita solo los lápices.',hint:'Los clips no se quitan.',good:['✏️'],bad:['📎']}
+];
+const opThemesU2=[{icon:'🧩',alt:''},{icon:'🎈',alt:'alt'},{icon:'🧸',alt:'alt2'},{icon:'🍎',alt:'alt3'}];
+const marketProbs=[
+  {story:'Ana compró 2 tomates y luego compró 3 más. ¿Qué operación resuelve el problema?',icon:'🍅',alt:'',a:2,b:3,correct:'2 + 3',options:['2 + 3','3 - 2','2 + 2']},
+  {story:'Luis tenía 6 naranjas y vendió 2. ¿Qué operación resuelve?',icon:'🍊',alt:'alt',a:6,b:2,correct:'6 - 2',options:['6 + 2','6 - 2','5 - 2']},
+  {story:'Rosa compró 3 quesos y luego compró 2 más. ¿Qué operación?',icon:'🧀',alt:'alt2',a:3,b:2,correct:'3 + 2',options:['2 + 2','3 + 2','3 - 2']}
+];
+const resultBaseU2=[{a:3,b:1,op:'+',icon:'🪀',alt:''},{a:5,b:2,op:'-',icon:'🪁',alt:'alt'},{a:4,b:2,op:'+',icon:'🎲',alt:'alt2'},{a:7,b:4,op:'-',icon:'🎯',alt:'alt3'}];
+
+function genUnion(){
+  const th=pick(itemThemesU);
+  const tg=rand(4,6),tb=rand(1,2);
+  const data=[];
+  for(let i=0;i<tg;i++)data.push({emoji:pick(th.good),good:true});
+  for(let i=0;i<tb;i++)data.push({emoji:pick(th.bad),good:false});
+  return{unit:2,type:'union',title:th.title,subtitle:'Une las cantidades',instruction:'Selecciona solo los objetos correctos y luego marca el total.',hint:'union',data:shuffle(data),total:tg,options:createOptions(tg,1,10)};
+}
+function genRemove(){
+  const th=pick(itemThemesR);
+  const rc=rand(1,3),kc=rand(2,4);
+  const data=[];
+  for(let i=0;i<rc;i++)data.push({emoji:pick(th.good),remove:true});
+  for(let i=0;i<kc;i++)data.push({emoji:pick(th.bad),remove:false});
+  return{unit:2,type:'remove',title:th.title,subtitle:'Quita los objetos',instruction:'Quita solo los objetos indicados y marca cuántos quedan.',hint:'remove',data:shuffle(data),removeCount:rc,remainingCount:kc,options:createOptions(kc,1,10)};
+}
+function genOperation(){
+  const th=pick(opThemesU2),useSum=Math.random()>.5;
+  const a=useSum?rand(1,6):rand(4,10);
+  const b=useSum?rand(1,4):rand(1,Math.min(5,a-1));
+  const correct=useSum?a+b:a-b;
+  return{unit:2,type:'operation',title:`Completa: ${a} ${useSum?'+':'-'} ${b} = ?`,subtitle:'Completa la operación',instruction:'Mira la operación y elige el resultado correcto.',hint:'operation',a,b,op:useSum?'+':'-',correct,icon:th.icon,altClass:th.alt,options:createOptions(correct,0,12)};
+}
+function genMarket(){
+  const p={...pick(marketProbs)};
+  return{unit:2,type:'market',title:'Lee el problema y encuentra la operación',subtitle:'Problemas del mercado',instruction:'Lee el problema y selecciona la operación correcta.',hint:'market',...p,options:shuffle(p.options)};
+}
+function genResultU2(){
+  const ex={...pick(resultBaseU2)};
+  const correct=ex.op==='+'?ex.a+ex.b:ex.a-ex.b;
+  return{unit:2,type:'result',title:`Encuentra el resultado de ${ex.a} ${ex.op} ${ex.b}`,subtitle:'Encuentra el resultado correcto',instruction:'Selecciona el resultado usando la pista visual.',hint:'result',...ex,correct,options:createOptions(correct,0,12)};
+}
+
+/* ════ GENERADORES UNIDAD 3 ════ */
+function genGroup(){
+  const g=rand(2,4),pg=rand(2,5),tot=g*pg;
+  return{unit:3,type:'group',title:`¿Qué multiplicación muestra ${g} grupos de ${pg}?`,subtitle:'Agrupar objetos',instruction:`Cuenta los grupos (${g}) y los objetos por grupo (${pg}). Elige la multiplicación correcta.`,hint:'group',groups:g,perGroup:pg,total:tot,options:createOptions(tot,1,30)};
+}
+function genTableMul(){
+  const a=rand(2,7),b=rand(2,6),ans=a*b;
+  return{unit:3,type:'table_mul',title:`Completa: ${a} × ${b} = ?`,subtitle:'Tablas de multiplicar',instruction:'Selecciona el resultado correcto.',hint:'table_mul',a,b,answer:ans,options:createOptions(ans,1,50)};
+}
+function genDistribute(){
+  const pc=rand(2,6),ct=rand(2,4),tot=pc*ct;
+  const objs=['🍎','🍬','⭐','🌸','⚽','🧁'];
+  const names=[['manzana','manzanas'],['caramelo','caramelos'],['estrella','estrellas'],['flor','flores'],['pelota','pelotas'],['pastelito','pastelitos']];
+  const idx=rand(0,5);
+  return{unit:3,type:'distribute',title:`Reparte ${tot} ${names[idx][1]} entre ${ct} grupos`,subtitle:'Repartir equitativamente',instruction:`Cada grupo debe recibir exactamente ${pc}.`,hint:'distribute',object:objs[idx],total:tot,containers:ct,perContainer:pc,pluralName:names[idx][1],options:createOptions(pc,1,10)};
+}
+function genMixed(){
+  const isMul=Math.random()>.5;
+  let a,b,ans,expr;
+  if(isMul){a=rand(2,7);b=rand(2,6);ans=a*b;expr=`${a} × ${b}`;}
+  else{b=rand(2,6);ans=rand(2,8);a=ans*b;expr=`${a} ÷ ${b}`;}
+  return{unit:3,type:'mixed',title:`Resuelve: ${expr} = ?`,subtitle:'Operaciones mixtas',instruction:'Observa bien el signo (× o ÷) antes de elegir.',hint:'mixed',expression:expr,answer:ans,options:createOptions(ans,1,50)};
+}
+
+/* ════ GENERADORES UNIDAD 4 ════ */
+function genClassify(){
+  const nums=[
+    ['3.5','4','7.2','9','10.8','2'],
+    ['5','2.4','11','6.7','8','1.3'],
+    ['12.5','3','4.9','7','15','0.8']
+  ];
+  const chosen=pick(nums);
+  return{unit:4,type:'classify',title:'Clasifica los números',subtitle:'Clasificación de decimales y enteros',instruction:'Coloca cada número en su zona correcta: decimales o enteros.',hint:'classify',numbers:chosen.map(n=>({value:n,isDecimal:n.includes('.')}))};
+}
+function genCompareDec(){
+  const pairs=[['3.7','3.4'],['5.2','5.8'],['8.09','8.1'],['4.5','4.53'],['2.6','2.60'],['9.1','9.01']];
+  const [a,b]=pick(pairs);
+  const av=parseFloat(a),bv=parseFloat(b);
+  const greater=av>bv?'A':'B';
+  return{unit:4,type:'compare_dec',title:'¿Cuál número decimal es mayor?',subtitle:'Comparación de decimales',instruction:'Selecciona el número decimal mayor y colócalo en la estrella.',hint:'compare_dec',a,b,greater};
+}
+function genTableDec(){
+  const themes=[
+    {context:'Registro de frutas vendidas.',headers:['🍎 Fruta','📦 Cantidad'],rows:[['Manzanas',5],['Peras',8],['Naranjas',3],['Plátanos',6]],blanks:[1],totalBlank:true,distractors:[2,7,9]},
+    {context:'Pelotas de colores contadas.',headers:['🎨 Color','⚽ Cantidad'],rows:[['Rojo',7],['Azul',4],['Verde',9],['Amarillo',2]],blanks:[2],totalBlank:true,distractors:[6,8,1]},
+    {context:'Calificaciones del examen.',headers:['👤 Estudiante','📝 Nota'],rows:[['Ana',9],['Luis',7],['Sofía',10],['Carlos',8]],blanks:[1,3],totalBlank:false,distractors:[5,4,3]}
+  ];
+  const th={...pick(themes)};
+  const total=th.rows.reduce((s,r)=>s+r[1],0);
+  return{unit:4,type:'table_dec',title:'Completa la tabla',subtitle:'Interpretación de tablas',instruction:'Completa los espacios vacíos usando el banco de valores.',hint:'table_dec',...th,total};
+}
+function genChart(){
+  const themes=[
+    {context:'Frutas vendidas en la tienda.',chartTitle:'🍎 Frutas vendidas',items:[['Manzanas','🍎',4],['Peras','🍐',2],['Naranjas','🍊',5],['Uvas','🍇',3]]},
+    {context:'Libros leídos por cada estudiante.',chartTitle:'📚 Libros leídos',items:[['Ana','👧',3],['Luis','👦',7],['Sofía','👧',5],['Carlos','👦',2]]},
+    {context:'Útiles escolares en el salón.',chartTitle:'✏️ Útiles escolares',items:[['Lápices','✏️',8],['Reglas','📏',4],['Tijeras','✂️',2],['Borradores','🧹',6]]},
+    {context:'Participantes en el club.',chartTitle:'🏃 Club extracurricular',items:[['Fútbol','⚽',9],['Danza','💃',5],['Arte','🎨',3],['Música','🎵',7]]}
+  ];
+  const th=pick(themes);
+  const items=th.items.map((it,i)=>({label:it[0],icon:it[1],value:it[2],color:BAR_COLORS[i%BAR_COLORS.length]}));
+  return{unit:4,type:'chart',title:'Construye la gráfica',subtitle:'Representación en gráficas',instruction:'Coloca cada barra en su categoría con la altura correcta.',hint:'chart',context:th.context,chartTitle:th.chartTitle,items,maxVal:Math.max(...items.map(i=>i.value))};
+}
+
+/* ════ ESTADO GLOBAL ════ */
+let gameData=[],currentEx=0,score=0,solvedCurrent=false,currentAttempts=0,failedAny=false;
+let selVal=null,selElems=new Set(),selSymbol=null,slotVals=[],placements={hundreds:null,tens:null,units:null};
+let classifyPos={},tableState={answers:{},pool:[]},chartState={placed:{},pool:[]},compareDecState={placed:null};
+let activeDragData=null;
+
+function clearDragSelection(){
+  activeDragData=null;
+  document.querySelectorAll('.drag-selected').forEach(el=>el.classList.remove('drag-selected'));
+}
+function getDragPayload(e){
+  if(e&&e.dataTransfer){
+    try{
+      const raw=e.dataTransfer.getData('application/json')||e.dataTransfer.getData('text/plain');
+      if(raw)return JSON.parse(raw);
+    }catch(err){}
+  }
+  return activeDragData;
+}
+function registerDraggable(el,payload,onTap){
+  if(!el)return;
+  el.classList.add('dnd-chip');
+  el.setAttribute('draggable','true');
+  el.addEventListener('dragstart',ev=>{
+    activeDragData=payload;
+    document.querySelectorAll('.drag-selected').forEach(node=>node.classList.remove('drag-selected'));
+    el.classList.add('drag-selected');
+    try{
+      ev.dataTransfer.effectAllowed='move';
+      ev.dataTransfer.setData('application/json',JSON.stringify(payload));
+      ev.dataTransfer.setData('text/plain',JSON.stringify(payload));
+    }catch(err){}
+  });
+  el.addEventListener('dragend',()=>setTimeout(clearDragSelection,0));
+  if(onTap){
+    el.addEventListener('click',ev=>{
+      if(ev.defaultPrevented)return;
+      onTap(ev);
+    });
+  }
+}
+function registerDropZone(el,onDrop){
+  if(!el)return;
+  el.addEventListener('dragover',ev=>{
+    ev.preventDefault();
+    el.classList.add('drag-over');
+  });
+  el.addEventListener('dragenter',ev=>{
+    ev.preventDefault();
+    el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave',ev=>{
+    if(ev.relatedTarget && el.contains(ev.relatedTarget))return;
+    el.classList.remove('drag-over');
+  });
+  el.addEventListener('drop',ev=>{
+    ev.preventDefault();
+    el.classList.remove('drag-over');
+    const payload=getDragPayload(ev);
+    if(payload)onDrop(payload,ev);
+    clearDragSelection();
+  });
+}
+
+
+function bindSimpleChoice(boxId, wrapId){
+  const box=document.getElementById(boxId);
+  const wrap=document.getElementById(wrapId);
+  if(!box||!wrap)return;
+  registerDropZone(box,payload=>{
+    if(payload.kind!=='single')return;
+    const match=[...wrap.querySelectorAll('.card-opt')].find(node=>String(node.dataset.value)===String(payload.value));
+    if(match)selectSingle(payload.value,match,boxId);
+    else{selVal=payload.value;box.textContent=payload.value;box.classList.add('filled');}
+  });
+  wrap.querySelectorAll('.card-opt').forEach(el=>{
+    registerDraggable(el,{kind:'single',value:el.dataset.value},()=>selectSingle(el.dataset.value,el,boxId));
+  });
+}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function setFeedback(type,msg){const b=document.getElementById('feedbackBox');b.className='feedback '+type;b.textContent='Gauss dice: '+msg;}
+function goMenu(){window.location.href='../Ruta de Aprendizaje/Pantalla de unidad_R_A.html';}
+function showInstructions(){activarGesto();alert('Tienes 28 ejercicios mezclados de 4 unidades. Si fallas, repetirás el mismo ejercicio. Solo completando los 28 correctamente podrás reclamar el diploma.');hablar('Para reclamar el diploma debes completar todos los 28 ejercicios correctamente.','side');}
+
+/* ════ CREAR SET ════ */
+function createGameData(){
+  const u1=[genCount(),genWords(),genPlace(),genCompare(),genOrder(),genCount(),genWords()];
+  const u2=[genUnion(),genRemove(),genOperation(),genMarket(),genResultU2(),genUnion(),genRemove()];
+  const u3=[genGroup(),genTableMul(),genDistribute(),genMixed(),genGroup(),genTableMul(),genDistribute()];
+  const u4=[genClassify(),genCompareDec(),genTableDec(),genChart(),genClassify(),genCompareDec(),genTableDec()];
+  return shuffle([...u1,...u2,...u3,...u4]);
+}
+
+/* ════ INICIO ════ */
+function startEvaluation(){
+  activarGesto();
+  gameData=createGameData();
+  currentEx=0;score=0;failedAny=false;
+  renderExercise();showScreen('screenGame');
+  setTimeout(()=>hablar('¡Comencemos! 28 retos mezclados de todas las unidades. ¡Tú puedes!','side'),400);
+}
+function restartEvaluation(){startEvaluation();}
+
+/* ════ RENDER ════ */
+function resetState(){
+  solvedCurrent=false;currentAttempts=0;selVal=null;selElems=new Set();selSymbol=null;slotVals=[];
+  placements={hundreds:null,tens:null,units:null};classifyPos={};tableState={answers:{},pool:[]};
+  chartState={placed:{},pool:[]};compareDecState={placed:null};
+  clearDragSelection();
+  document.getElementById('attemptCounter').textContent='Intentos: 0';
+  document.getElementById('feedbackBox').className='feedback info';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('checkBtn').style.display='inline-block';
+  document.getElementById('hintBtn').style.display='inline-block';
+}
+
+function renderExercise(){
+  resetState();
+  const ex=gameData[currentEx];
+  const n=currentEx+1;
+  document.getElementById('exerciseTitle').textContent=ex.title;
+  document.getElementById('exerciseSubtitle').textContent=ex.subtitle;
+  document.getElementById('instructionBox').innerHTML='<strong>Instrucciones:</strong> '+ex.instruction;
+  document.getElementById('typeBadge').textContent=ex.subtitle;
+  document.getElementById('exerciseCounter').textContent='Ejercicio '+n+' de '+TOTAL;
+  document.getElementById('scoreCounter').textContent='Puntos: '+score;
+  document.getElementById('miniProgress').textContent=n+'/'+TOTAL;
+  document.getElementById('progressFill').style.width=(currentEx/TOTAL*100)+'%';
+  const sc=Math.max(1,Math.min(3,Math.ceil((score+1)/10)));
+  document.getElementById('starsBox').textContent='⭐ '.repeat(sc).trim();
+  const ub=document.getElementById('unitBadgeArea');
+  ub.innerHTML=`<div class="unit-badge unit-${ex.unit}">Unidad ${ex.unit}</div>`;
+  const sideMsg=pick(hintLib[ex.hint]||['Lee con calma.']);
+  document.getElementById('sideMessage').textContent=sideMsg;
+  updateGameGaussBubble(sideMsg,'Gauss te orienta 🦉');
+  setFeedback('info','Lee con calma y responde con atención.');
+
+  const area=document.getElementById('exerciseArea');
+  area.innerHTML='';
+
+  if(ex.type==='count')renderCount(ex,area);
+  else if(ex.type==='words')renderWords(ex,area);
+  else if(ex.type==='place')renderPlace(ex,area);
+  else if(ex.type==='compare')renderCompareU1(ex,area);
+  else if(ex.type==='order')renderOrder(ex,area);
+  else if(ex.type==='union')renderUnion(ex,area);
+  else if(ex.type==='remove')renderRemove(ex,area);
+  else if(ex.type==='operation')renderOperation(ex,area);
+  else if(ex.type==='market')renderMarket(ex,area);
+  else if(ex.type==='result')renderResultU2(ex,area);
+  else if(ex.type==='group')renderGroup(ex,area);
+  else if(ex.type==='table_mul')renderTableMul(ex,area);
+  else if(ex.type==='distribute')renderDistribute(ex,area);
+  else if(ex.type==='mixed')renderMixed(ex,area);
+  else if(ex.type==='classify')renderClassify(ex,area);
+  else if(ex.type==='compare_dec')renderCompareDec(ex,area);
+  else if(ex.type==='table_dec')renderTableDec(ex,area);
+  else if(ex.type==='chart')renderChart(ex,area);
+}
+
+/* ═══ RENDERERS U1 ═══ */
+function renderCount(ex,area){
+  area.innerHTML=`<div class="board"><div class="board-label">Observa los objetos</div><div class="objects-grid" id="objGrid"></div></div><div class="drop-zone answer-box" id="singleBox">Arrastra o toca una respuesta</div><div class="section-lbl">Opciones</div><div class="options-row" id="countOpts"></div>`;
+  const g=document.getElementById('objGrid');
+  for(let i=0;i<ex.amount;i++){
+    const d=document.createElement('div');
+    d.className='object-item';
+    d.textContent=ex.object;
+    g.appendChild(d);
+  }
+  ex.options.forEach(opt=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=opt;
+    d.dataset.value=opt;
+    d.onclick=()=>selectSingle(opt,d,'singleBox');
+    document.getElementById('countOpts').appendChild(d);
+  });
+  bindSimpleChoice('singleBox','countOpts');
+}
+function renderWords(ex,area){
+  area.innerHTML=`<div class="board"><div class="board-label">Número en palabras</div><div class="board-value">${ex.words}</div></div><div class="drop-zone answer-box" id="singleBox">Arrastra o toca una respuesta</div><div class="section-lbl">Opciones</div><div class="options-row" id="wordOpts"></div>`;
+  ex.options.forEach(opt=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=opt;
+    d.dataset.value=opt;
+    d.onclick=()=>selectSingle(opt,d,'singleBox');
+    document.getElementById('wordOpts').appendChild(d);
+  });
+  bindSimpleChoice('singleBox','wordOpts');
+}
+function renderPlace(ex,area){
+  area.innerHTML=`<div class="board"><div class="board-label">Número principal</div><div class="board-value">${ex.number}</div></div><div class="section-lbl">Cifras disponibles</div><div class="options-row" id="digitBank"></div><div class="columns-grid"><div class="column-card"><div class="column-title">Centenas</div><div class="place-slot" data-place="hundreds">Suelta o toca aquí</div></div><div class="column-card"><div class="column-title">Decenas</div><div class="place-slot" data-place="tens">Suelta o toca aquí</div></div><div class="column-card"><div class="column-title">Unidades</div><div class="place-slot" data-place="units">Suelta o toca aquí</div></div></div>`;
+  ex.digits.forEach((d,idx)=>{
+    const el=document.createElement('div');
+    el.className='card-opt';
+    el.textContent=d;
+    el.dataset.value=d;
+    el.dataset.key=`${d}-${idx}`;
+    registerDraggable(el,{kind:'digit',value:d,key:`${d}-${idx}`},()=>{
+      selVal=d;
+      document.querySelectorAll('#digitBank .card-opt').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+    document.getElementById('digitBank').appendChild(el);
+  });
+  document.querySelectorAll('.place-slot').forEach(slot=>{
+    registerDropZone(slot,payload=>{
+      if(payload.kind!=='digit')return;
+      placements[slot.dataset.place]=payload.value;
+      slot.textContent=payload.value;
+      slot.classList.add('filled');
+    });
+    slot.onclick=()=>{
+      if(selVal!==null){
+        placements[slot.dataset.place]=selVal;
+        slot.textContent=selVal;
+        slot.classList.add('filled');
+      }
+    };
+  });
+}
+function renderCompareU1(ex,area){
+  area.innerHTML=`<div class="board"><div class="board-label">Compara estos números</div><div class="compare-row"><div class="num-box">${ex.left}</div><div class="sym-slot" id="symBox">?</div><div class="num-box">${ex.right}</div></div></div><div class="section-lbl">Símbolos disponibles</div><div class="options-row" id="symOpts"></div>`;
+  const box=document.getElementById('symBox');
+  registerDropZone(box,payload=>{
+    if(payload.kind!=='symbol')return;
+    selSymbol=payload.value;
+    box.textContent=payload.value;
+    box.classList.add('filled');
+    document.querySelectorAll('#symOpts .card-opt').forEach(c=>c.classList.toggle('selected',c.dataset.value===payload.value));
+  });
+  shuffle(['>','<','=']).forEach(sym=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=sym;
+    d.dataset.value=sym;
+    registerDraggable(d,{kind:'symbol',value:sym},()=>{
+      selSymbol=sym;
+      document.querySelectorAll('#symOpts .card-opt').forEach(c=>c.classList.remove('selected'));
+      d.classList.add('selected');
+      box.textContent=sym;
+      box.classList.add('filled');
+    });
+    document.getElementById('symOpts').appendChild(d);
+  });
+}
+function renderOrder(ex,area){
+  slotVals=new Array(ex.answer.length).fill(null);
+  area.innerHTML=`<div class="board"><div class="board-label">Tipo de orden</div><div class="board-value" style="font-size:1.2rem">${ex.mode==='asc'?'Ascendente: de menor a mayor':'Descendente: de mayor a menor'}</div></div><div class="section-lbl">Números disponibles</div><div class="options-row" id="numbersBank"></div><div class="section-lbl">Colócalos en orden</div><div class="slots-row" id="orderSlots"></div>`;
+  ex.numbers.forEach((num,idx)=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=num;
+    d.dataset.value=num;
+    registerDraggable(d,{kind:'order',value:num,key:`order-${idx}`},()=>{
+      selVal=num;
+      document.querySelectorAll('#numbersBank .card-opt').forEach(c=>c.classList.remove('selected'));
+      d.classList.add('selected');
+    });
+    document.getElementById('numbersBank').appendChild(d);
+  });
+  const slots=document.getElementById('orderSlots');
+  for(let i=0;i<ex.answer.length;i++){
+    const s=document.createElement('div');
+    s.className='order-slot';
+    s.dataset.index=i;
+    s.innerHTML=`<div class="slot-step">Paso ${i+1}</div><div class="slot-value">?</div>`;
+    registerDropZone(s,payload=>{
+      if(payload.kind!=='order')return;
+      slotVals[i]=Number(payload.value);
+      s.classList.add('filled');
+      s.querySelector('.slot-value').textContent=payload.value;
+    });
+    s.onclick=()=>{
+      if(selVal!==null){
+        slotVals[i]=Number(selVal);
+        s.classList.add('filled');
+        s.querySelector('.slot-value').textContent=selVal;
+      }
+    };
+    slots.appendChild(s);
+  }
+}
+
+/* ═══ RENDERERS U2 ═══ */
+function renderUnion(ex,area){
+  area.innerHTML=`<div class="section-lbl">Objetos disponibles</div><div class="objects-grid" id="uniObjs"></div><div class="answer-stack"><div class="answer-shell"><div class="section-lbl">Caja de unión</div><div class="drop-zone" id="uniDrop"><div id="uniContent" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div><div class="selection-hint">Selecciona solo los objetos correctos</div></div></div><div class="answer-shell"><div class="section-lbl">¿Cuál es el total?</div><div class="drop-zone answer-box" id="uniAnswerBox">Arrastra o toca una respuesta</div></div></div><div class="section-lbl">Opciones</div><div class="options-row" id="uniOpts"></div>`;
+  ex.data.forEach((item,idx)=>{
+    const d=document.createElement('div');
+    d.className='object-item'+(item.good?'':' distractor');
+    d.style.opacity=item.good?'1':'.55';
+    d.textContent=item.emoji;
+    d.onclick=()=>toggleUnionSel(idx,d,ex);
+    document.getElementById('uniObjs').appendChild(d);
+  });
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'uniAnswerBox');
+    document.getElementById('uniOpts').appendChild(d);
+  });
+  bindSimpleChoice('uniAnswerBox','uniOpts');
+}
+function toggleUnionSel(idx,card,ex){if(solvedCurrent)return;if(selElems.has(idx)){selElems.delete(idx);card.classList.remove('selected');}else{selElems.add(idx);card.classList.add('selected');}const cnt=document.getElementById('uniContent');cnt.innerHTML='';[...selElems].forEach(i=>{const e=document.createElement('span');e.style.fontSize='1.5rem';e.textContent=ex.data[i].emoji;cnt.appendChild(e);});const d=document.getElementById('uniDrop');d.classList.toggle('filled',selElems.size>0);}
+function renderRemove(ex,area){
+  area.innerHTML=`<div class="section-lbl">Caja principal</div><div class="objects-grid" id="remObjs"></div><div class="answer-stack"><div class="answer-shell"><div class="section-lbl">Zona para quitar</div><div class="drop-zone" id="remDrop" style="min-height:110px"><div id="remContent" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div><div class="selection-hint">Quita solo los objetos indicados</div></div></div><div class="answer-shell"><div class="section-lbl">¿Cuántos quedan?</div><div class="drop-zone answer-box" id="remAnswerBox">Arrastra o toca una respuesta</div></div></div><div class="section-lbl">Opciones</div><div class="options-row" id="remOpts"></div>`;
+  ex.data.forEach((item,idx)=>{
+    const d=document.createElement('div');
+    d.className='object-item'+(item.remove?'':' distractor');
+    d.style.opacity=item.remove?'1':'.55';
+    d.textContent=item.emoji;
+    d.onclick=()=>toggleRemoveSel(idx,d,ex);
+    document.getElementById('remObjs').appendChild(d);
+  });
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'remAnswerBox');
+    document.getElementById('remOpts').appendChild(d);
+  });
+  bindSimpleChoice('remAnswerBox','remOpts');
+}
+function toggleRemoveSel(idx,card,ex){if(solvedCurrent)return;if(selElems.has(idx)){selElems.delete(idx);card.classList.remove('selected');}else{selElems.add(idx);card.classList.add('selected');}const cnt=document.getElementById('remContent');cnt.innerHTML='';[...selElems].forEach(i=>{const e=document.createElement('span');e.style.fontSize='1.5rem';e.textContent=ex.data[i].emoji;cnt.appendChild(e);});const d=document.getElementById('remDrop');d.classList.toggle('filled',selElems.size>0);}
+function renderOperation(ex,area){
+  area.innerHTML=`<div class="visual-row" id="opVis"></div><div class="eq-area"><div class="eq-num">${ex.a}</div><div class="eq-sym">${ex.op}</div><div class="eq-num">${ex.b}</div><div class="eq-sym">=</div><div class="drop-zone answer-box" id="opDrop">Arrastra o toca</div></div><div class="section-lbl">Resultados</div><div class="options-row" id="opOpts"></div>`;
+  const vis=document.getElementById('opVis');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`v-chip ${ex.altClass}`.trim();c.textContent=ex.icon;vis.appendChild(c);}
+  const s=document.createElement('div');s.className='v-chip';s.textContent=ex.op;vis.appendChild(s);
+  for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`v-chip ${ex.altClass}`.trim();c.textContent=ex.icon;if(ex.op==='-')c.style.opacity='.35';vis.appendChild(c);}
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'opDrop');
+    document.getElementById('opOpts').appendChild(d);
+  });
+  bindSimpleChoice('opDrop','opOpts');
+}
+function renderMarket(ex,area){
+  area.innerHTML=`<div class="visual-row" id="mktVis"></div><div class="story-box">${ex.story}</div><div class="drop-zone answer-box" id="mktDrop">Arrastra o toca la operación correcta</div><div class="section-lbl">Operaciones disponibles</div><div class="options-row" id="mktOpts"></div>`;
+  const vis=document.getElementById('mktVis');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`v-chip ${ex.alt}`.trim();c.textContent=ex.icon;vis.appendChild(c);}
+  const s=document.createElement('div');s.className='v-chip';s.textContent=ex.correct.includes('+')?'+':'−';vis.appendChild(s);
+  for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`v-chip ${ex.alt}`.trim();c.textContent=ex.icon;if(ex.correct.includes('-'))c.style.opacity='.35';vis.appendChild(c);}
+  ex.options.forEach(txt=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.style.minWidth='130px';
+    d.textContent=txt;
+    d.dataset.value=txt;
+    d.onclick=()=>selectSingle(txt,d,'mktDrop');
+    document.getElementById('mktOpts').appendChild(d);
+  });
+  bindSimpleChoice('mktDrop','mktOpts');
+}
+function renderResultU2(ex,area){
+  area.innerHTML=`<div class="visual-row" id="resVis"></div><div class="eq-area"><div class="eq-num">${ex.a}</div><div class="eq-sym">${ex.op}</div><div class="eq-num">${ex.b}</div><div class="eq-sym">=</div><div class="drop-zone answer-box" id="resDrop">Arrastra o toca</div></div><div class="section-lbl">Resultados</div><div class="options-row" id="resOpts"></div>`;
+  const vis=document.getElementById('resVis');
+  for(let i=0;i<ex.a;i++){const c=document.createElement('div');c.className=`v-chip ${ex.alt||''}`.trim();c.textContent=ex.icon;vis.appendChild(c);}
+  const s=document.createElement('div');s.className='v-chip';s.textContent=ex.op;vis.appendChild(s);
+  for(let i=0;i<ex.b;i++){const c=document.createElement('div');c.className=`v-chip ${ex.alt||''}`.trim();c.textContent=ex.icon;if(ex.op==='-')c.style.opacity='.35';vis.appendChild(c);}
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'resDrop');
+    document.getElementById('resOpts').appendChild(d);
+  });
+  bindSimpleChoice('resDrop','resOpts');
+}
+
+/* ═══ RENDERERS U3 ═══ */
+function renderGroup(ex,area){
+  area.innerHTML=`<div class="visual-row" id="grpVis"></div><div class="eq-area"><div class="eq-num">${ex.groups}</div><div class="eq-sym">×</div><div class="eq-num">${ex.perGroup}</div><div class="eq-sym">=</div><div class="drop-zone answer-box" id="grpDrop">Arrastra o toca</div></div><div class="section-lbl">Resultados</div><div class="options-row" id="grpOpts"></div>`;
+  const vis=document.getElementById('grpVis');
+  for(let g=0;g<ex.groups;g++){
+    const gc=document.createElement('div');
+    gc.className='group-card';
+    gc.innerHTML=`<div class="group-title-sm">Grupo ${g+1}</div><div class="group-items"></div>`;
+    const it=gc.querySelector('.group-items');
+    for(let i=0;i<ex.perGroup;i++){const m=document.createElement('div');m.className='group-mini';m.textContent='🍎';it.appendChild(m);}
+    vis.appendChild(gc);
+  }
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'grpDrop');
+    document.getElementById('grpOpts').appendChild(d);
+  });
+  bindSimpleChoice('grpDrop','grpOpts');
+}
+function renderTableMul(ex,area){
+  area.innerHTML=`<div class="eq-area"><div class="eq-num">${ex.a}</div><div class="eq-sym">×</div><div class="eq-num">${ex.b}</div><div class="eq-sym">=</div><div class="drop-zone answer-box" id="tblDrop">Arrastra o toca</div></div><div class="section-lbl">Resultados</div><div class="options-row" id="tblOpts"></div>`;
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'tblDrop');
+    document.getElementById('tblOpts').appendChild(d);
+  });
+  bindSimpleChoice('tblDrop','tblOpts');
+}
+function renderDistribute(ex,area){
+  area.innerHTML=`<div class="story-box">Reparte <strong>${ex.total}</strong> ${ex.pluralName} en <strong>${ex.containers}</strong> grupos iguales</div><div class="visual-row" id="distVis"></div><div class="drop-zone answer-box" id="distDrop">¿Cuántos por grupo?</div><div class="section-lbl">Selecciona la cantidad</div><div class="options-row" id="distOpts"></div>`;
+  const vis=document.getElementById('distVis');
+  for(let c=0;c<ex.containers;c++){
+    const gc=document.createElement('div');
+    gc.className='group-card';
+    gc.innerHTML=`<div class="group-title-sm">Grupo ${c+1}</div><div class="group-items"></div>`;
+    const it=gc.querySelector('.group-items');
+    for(let i=0;i<ex.perContainer;i++){const m=document.createElement('div');m.className='group-mini';m.textContent=ex.object;it.appendChild(m);}
+    vis.appendChild(gc);
+  }
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'distDrop');
+    document.getElementById('distOpts').appendChild(d);
+  });
+  bindSimpleChoice('distDrop','distOpts');
+}
+function renderMixed(ex,area){
+  area.innerHTML=`<div class="eq-area"><div class="eq-num" style="font-size:1.4rem">${ex.expression}</div><div class="eq-sym">=</div><div class="drop-zone answer-box" id="mixDrop">Arrastra o toca</div></div><div class="section-lbl">Resultados</div><div class="options-row" id="mixOpts"></div>`;
+  ex.options.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='card-opt';
+    d.textContent=n;
+    d.dataset.value=n;
+    d.onclick=()=>selectSingle(n,d,'mixDrop');
+    document.getElementById('mixOpts').appendChild(d);
+  });
+  bindSimpleChoice('mixDrop','mixOpts');
+}
+
+/* ═══ RENDERERS U4 ═══ */
+function renderClassify(ex,area){
+  ex.numbers.forEach((_,i)=>classifyPos[i]='pool');
+  area.innerHTML=`<div class="pool-wrap" id="clPool"></div><div class="zones-wrap"><div class="zone zone-decimal"><div class="zone-label">🔵 Decimales</div><div class="zone-content" id="zDec"><span class="empty-hint">Coloca aquí los decimales</span></div></div><div class="zone zone-integer"><div class="zone-label">🟠 Enteros</div><div class="zone-content" id="zInt"><span class="empty-hint">Coloca aquí los enteros</span></div></div></div>`;
+  rerenderClassify(ex);
+  registerDropZone(document.getElementById('clPool'),payload=>{
+    if(payload.kind!=='classify')return;
+    classifyPos[payload.index]='pool';
+    rerenderClassify(ex);
+  });
+  registerDropZone(document.getElementById('zDec'),payload=>{
+    if(payload.kind!=='classify')return;
+    classifyPos[payload.index]='decimal';
+    rerenderClassify(ex);
+  });
+  registerDropZone(document.getElementById('zInt'),payload=>{
+    if(payload.kind!=='classify')return;
+    classifyPos[payload.index]='integer';
+    rerenderClassify(ex);
+  });
+}
+function rerenderClassify(ex){
+  const pool=document.getElementById('clPool'),dec=document.getElementById('zDec'),int=document.getElementById('zInt');
+  if(!pool||!dec||!int)return;
+  pool.innerHTML='';dec.innerHTML='';int.innerHTML='';
+  let de=true,ie=true;
+  ex.numbers.forEach((num,i)=>{
+    const zone=classifyPos[i];
+    const chip=document.createElement('div');
+    chip.className='n-chip'+(zone==='decimal'?' dec-chip':zone==='integer'?' int-chip':'');
+    chip.textContent=num.value;
+    if(solvedCurrent&&zone!=='pool')chip.classList.add(num.isDecimal===(zone==='decimal')?'correct':'wrong');
+    registerDraggable(chip,{kind:'classify',index:i},()=>{
+      if(solvedCurrent)return;
+      const p=classifyPos[i];
+      classifyPos[i]=p==='pool'?'decimal':p==='decimal'?'integer':'pool';
+      rerenderClassify(ex);
+    });
+    if(zone==='pool')pool.appendChild(chip);
+    else if(zone==='decimal'){dec.appendChild(chip);de=false;}
+    else{int.appendChild(chip);ie=false;}
+  });
+  if(de)dec.innerHTML='<span class="empty-hint">Coloca aquí los decimales</span>';
+  if(ie)int.innerHTML='<span class="empty-hint">Coloca aquí los enteros</span>';
+}
+function renderCompareDec(ex,area){
+  compareDecState={placed:null,sel:null};
+  area.innerHTML=`<div class="cmp-arena"><div class="cmp-chip" id="cmpA">${ex.a}</div><div class="vs-badge">VS</div><div class="cmp-chip" id="cmpB">${ex.b}</div></div><div style="text-align:center;margin:12px 0"><div class="zone-label" style="display:inline-block;padding:7px 16px;border-radius:999px;background:linear-gradient(135deg,var(--gy),#f7dc7b);color:var(--gb)">⭐ Toca aquí el número mayor</div></div><div class="drop-target" id="decDrop"><span id="decStar" style="font-size:2rem">⭐</span><span class="drop-num" id="decNum"></span></div>`;
+  const chipA=document.getElementById('cmpA');
+  const chipB=document.getElementById('cmpB');
+  const drop=document.getElementById('decDrop');
+  registerDraggable(chipA,{kind:'compare_dec',key:'A'},()=>selCompareDec('A'));
+  registerDraggable(chipB,{kind:'compare_dec',key:'B'},()=>selCompareDec('B'));
+  registerDropZone(drop,payload=>{
+    if(payload.kind!=='compare_dec')return;
+    compareDecState.sel=payload.key;
+    placeCompareDec();
+  });
+  drop.onclick=()=>placeCompareDec();
+}
+function selCompareDec(key,e){if(solvedCurrent)return;compareDecState.sel=key;document.getElementById('cmpA').classList.toggle('selected',key==='A');document.getElementById('cmpB').classList.toggle('selected',key==='B');}
+function placeCompareDec(e){if(solvedCurrent)return;if(!compareDecState.sel)return;const ex=gameData[currentEx];compareDecState.placed=compareDecState.sel;const txt=compareDecState.sel==='A'?ex.a:ex.b;document.getElementById('decStar').style.display='none';const n=document.getElementById('decNum');n.style.display='block';n.textContent=txt;document.getElementById('decDrop').classList.add('filled');}
+function renderTableDec(ex,area){
+  tableState={answers:{},pool:[]};
+  ex.blanks.forEach(i=>tableState.answers[i]=null);
+  if(ex.totalBlank)tableState.answers[-1]=null;
+  tableState.pool=shuffle([...ex.blanks.map(i=>ex.rows[i][1]),...(ex.totalBlank?[ex.total]:[]),...ex.distractors]);
+  area.innerHTML=`<div class="table-wrap"><table class="dtable"><thead><tr><th>${ex.headers[0]}</th><th>${ex.headers[1]}</th></tr></thead><tbody id="tblBody"></tbody></table></div><div class="section-lbl" style="margin-top:14px">📦 Banco de valores</div><div class="values-pool" id="valPool"></div>`;
+  rerenderTableDec(ex);
+}
+function rerenderTableDec(ex){
+  const body=document.getElementById('tblBody'),pool=document.getElementById('valPool');
+  if(!body||!pool)return;
+  body.innerHTML='';pool.innerHTML='';
+  ex.rows.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    const td1=document.createElement('td');td1.className='lbl';td1.textContent=row[0];
+    const td2=document.createElement('td');
+    if(ex.blanks.includes(i)){
+      const b=document.createElement('div');
+      b.className='blank-cell'+(tableState.answers[i]!==null?' filled':'');
+      b.textContent=tableState.answers[i]!==null?tableState.answers[i]:'?';
+      if(solvedCurrent)b.classList.add(tableState.answers[i]===row[1]?'correct':'wrong');
+      registerDropZone(b,payload=>{
+        if(payload.kind!=='table_val')return;
+        tableState.answers[i]=Number(payload.value);
+        selVal=null;
+        rerenderTableDec(ex);
+      });
+      b.onclick=()=>placeTableVal(i,ex);
+      td2.appendChild(b);
+    }else{td2.textContent=row[1];}
+    tr.appendChild(td1);tr.appendChild(td2);body.appendChild(tr);
+  });
+  const tr=document.createElement('tr');
+  const td1=document.createElement('td');td1.className='lbl';td1.textContent='TOTAL';
+  const td2=document.createElement('td');
+  if(ex.totalBlank){
+    const b=document.createElement('div');
+    b.className='blank-cell'+(tableState.answers[-1]!==null?' filled':'');
+    b.textContent=tableState.answers[-1]!==null?tableState.answers[-1]:'?';
+    if(solvedCurrent)b.classList.add(tableState.answers[-1]===ex.total?'correct':'wrong');
+    registerDropZone(b,payload=>{
+      if(payload.kind!=='table_val')return;
+      tableState.answers[-1]=Number(payload.value);
+      selVal=null;
+      rerenderTableDec(ex);
+    });
+    b.onclick=()=>placeTableVal(-1,ex);
+    td2.appendChild(b);
+  }else{td2.textContent=ex.total;}
+  tr.appendChild(td1);tr.appendChild(td2);body.appendChild(tr);
+  tableState.pool.forEach((val,idx)=>{
+    const used=Object.values(tableState.answers).includes(val);
+    const chip=document.createElement('div');
+    chip.className='val-chip'+(selVal===val?' selected':'')+(used?' used':'');
+    chip.textContent=val;
+    chip.dataset.value=val;
+    registerDraggable(chip,{kind:'table_val',value:val,key:`table-${idx}`},()=>{
+      if(solvedCurrent||used)return;
+      selVal=Number(val);
+      rerenderTableDec(ex);
+    });
+    if(used)chip.classList.add('used');
+    pool.appendChild(chip);
+  });
+}
+function placeTableVal(idx,ex){if(solvedCurrent)return;if(selVal===null){if(tableState.answers[idx]!==null){tableState.answers[idx]=null;rerenderTableDec(ex);}return;}tableState.answers[idx]=selVal;selVal=null;rerenderTableDec(ex);}
+function barH(v,mx){return Math.max(26,(v/mx)*220);}
+function renderChart(ex,area){
+  chartState={placed:{},pool:[]};
+  ex.items.forEach((_,i)=>chartState.placed[i]=null);
+  chartState.pool=shuffle(ex.items.map((it,i)=>({id:i,value:it.value,color:it.color})));
+  area.innerHTML=`<div class="data-ref" id="dataRef"></div><div class="chart-outer"><div style="text-align:center;font-weight:700;font-size:.96rem;margin-bottom:12px">${ex.chartTitle}</div><div class="chart-wrap"><div class="y-axis-outer" id="yAx"></div><div class="chart-body"><div class="grid-lines" id="grLines"></div><div class="bars-row" id="barsRow"></div><div class="x-axis-line"></div></div></div></div><div class="section-lbl" style="margin-top:14px">🎨 Banco de barras</div><div class="bars-pool" id="barsPool"></div>`;
+  rerenderChart(ex);
+}
+function rerenderChart(ex){
+  const ref=document.getElementById('dataRef'),yax=document.getElementById('yAx'),gr=document.getElementById('grLines'),brow=document.getElementById('barsRow'),bpool=document.getElementById('barsPool');
+  if(!ref||!yax||!gr||!brow||!bpool)return;
+  ref.innerHTML='';yax.innerHTML='';gr.innerHTML='';brow.innerHTML='';bpool.innerHTML='';
+  ex.items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='data-card';
+    d.innerHTML=`<span>${it.icon}</span><span>${it.label}</span><span>·</span><span style="color:var(--go);font-size:1.15rem">${it.value}</span>`;
+    ref.appendChild(d);
+  });
+  for(let v=ex.maxVal;v>=0;v--){
+    const t=document.createElement('div');
+    t.className='y-tick';
+    t.style.height=(220/(ex.maxVal+1))+'px';
+    t.textContent=v;
+    yax.appendChild(t);
+    const g=document.createElement('div');
+    g.className='grid-line'+(v===0?' zero-line':'');
+    g.style.height=(220/(ex.maxVal+1))+'px';
+    gr.appendChild(g);
+  }
+  ex.items.forEach((it,i)=>{
+    const col=document.createElement('div');
+    col.className='bar-col';
+    const drop=document.createElement('div');
+    drop.className='bar-drop';
+    const slot=document.createElement('div');
+    const placed=chartState.placed[i];
+    slot.className='bar-slot'+(placed?' filled':'');
+    slot.style.height=(placed?barH(placed.value,ex.maxVal):26)+'px';
+    slot.style.background=placed?`linear-gradient(180deg,${placed.color.light},${placed.color.main})`:'linear-gradient(180deg,#fffbe8,#fff5cc)';
+    if(placed){
+      const vl=document.createElement('div');
+      vl.className='bar-val-label';
+      vl.textContent=placed.value;
+      slot.appendChild(vl);
+    }else{
+      const h=document.createElement('div');
+      h.className='slot-hint';
+      h.textContent='?';
+      slot.appendChild(h);
+    }
+    if(solvedCurrent&&placed)slot.classList.add(placed.id===i?'correct':'wrong');
+    registerDropZone(slot,payload=>{
+      if(payload.kind!=='bar')return;
+      chartState.placed[i]=payload.bar;
+      selVal=null;
+      rerenderChart(ex);
+    });
+    slot.onclick=()=>placeChartBar(i,ex);
+    drop.appendChild(slot);
+    const bl=document.createElement('div');
+    bl.className='bar-label';
+    bl.innerHTML=`<div style="font-size:1rem">${it.icon}</div>${it.label}`;
+    col.appendChild(drop);col.appendChild(bl);brow.appendChild(col);
+  });
+  chartState.pool.forEach((bar,idx)=>{
+    const used=Object.values(chartState.placed).some(v=>v&&v.id===bar.id);
+    const wrap=document.createElement('div');
+    wrap.className='bar-chip'+(selVal&&selVal.id===bar.id?' selected':'')+(used?' used':'');
+    const vis=document.createElement('div');
+    vis.className='bar-chip-visual';
+    vis.style.height=barH(bar.value,ex.maxVal)+'px';
+    vis.style.background=`linear-gradient(180deg,${bar.color.light},${bar.color.main})`;
+    const num=document.createElement('div');
+    num.className='bar-chip-num';
+    num.textContent=bar.value;
+    wrap.appendChild(vis);wrap.appendChild(num);
+    registerDraggable(wrap,{kind:'bar',bar,key:`bar-${idx}`},()=>{
+      if(solvedCurrent||used)return;
+      selVal=bar;
+      rerenderChart(ex);
+    });
+    if(used)wrap.classList.add('used');
+    bpool.appendChild(wrap);
+  });
+}
+function placeChartBar(idx,ex){if(solvedCurrent)return;if(!selVal){if(chartState.placed[idx]){chartState.placed[idx]=null;rerenderChart(ex);}return;}chartState.placed[idx]=selVal;selVal=null;rerenderChart(ex);}
+
+/* ═══ SELECCIÓN SIMPLE ═══ */
+function selectSingle(value,el,boxId){
+  selVal=typeof value==='string'&&value!==''&&!isNaN(value)?Number(value):value;
+  const group=el&&el.parentElement?el.parentElement:null;
+  if(group)group.querySelectorAll('.card-opt').forEach(e=>e.classList.remove('selected'));
+  if(el)el.classList.add('selected');
+  const b=document.getElementById(boxId);
+  if(b){b.textContent=value;b.classList.add('filled');}
+}
+
+/* ═══ COMPROBACIÓN ═══ */
+function checkAnswer(){
+  activarGesto();
+  if(solvedCurrent)return;
+  const ex=gameData[currentEx];
+  currentAttempts++;
+  document.getElementById('attemptCounter').textContent='Intentos: '+currentAttempts;
+
+  let ok=false;
+
+  if(ex.type==='count'||ex.type==='words'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona una respuesta primero.');hablar('Selecciona una de las opciones.','side');return;}
+    ok=Number(selVal)===Number(ex.answer);
+  }
+  else if(ex.type==='place'){
+    if(!placements.hundreds||!placements.tens||!placements.units){playHint();setFeedback('error','Completa centenas, decenas y unidades.');hablar('Coloca las tres cifras en su lugar.','side');return;}
+    ok=placements.hundreds===ex.answer.hundreds&&placements.tens===ex.answer.tens&&placements.units===ex.answer.units;
+  }
+  else if(ex.type==='compare'){
+    if(!selSymbol){playHint();setFeedback('error','Selecciona un símbolo primero.');hablar('Elige uno de los tres símbolos.','side');return;}
+    ok=selSymbol===ex.answer;
+  }
+  else if(ex.type==='order'){
+    if(slotVals.some(v=>v===null)){playHint();setFeedback('error','Completa todos los espacios primero.');hablar('Llena todos los pasos del orden.','side');return;}
+    ok=JSON.stringify(slotVals)===JSON.stringify(ex.answer);
+  }
+  else if(ex.type==='union'){
+    if(selElems.size===0||selVal===null){playHint();setFeedback('error','Selecciona objetos y luego un total.');hablar('Primero une los objetos correctos y luego elige el total.','side');return;}
+    const chosen=[...selElems].map(i=>ex.data[i]);
+    ok=chosen.every(x=>x.good)&&chosen.length===ex.total&&Number(selVal)===ex.total;
+  }
+  else if(ex.type==='remove'){
+    if(selElems.size===0||selVal===null){playHint();setFeedback('error','Selecciona objetos y luego cuántos quedan.');hablar('Primero quita los objetos y luego elige cuántos quedan.','side');return;}
+    const chosen=[...selElems].map(i=>ex.data[i]);
+    ok=chosen.every(x=>x.remove)&&chosen.length===ex.removeCount&&Number(selVal)===ex.remainingCount;
+  }
+  else if(ex.type==='operation'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona un resultado.');hablar('Elige el resultado de la operación.','side');return;}
+    ok=Number(selVal)===ex.correct;
+  }
+  else if(ex.type==='market'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona una operación.');hablar('Elige la operación correcta.','side');return;}
+    ok=selVal===ex.correct;
+  }
+  else if(ex.type==='result'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona un resultado.');hablar('Elige el resultado.','side');return;}
+    ok=Number(selVal)===ex.correct;
+  }
+  else if(ex.type==='group'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona un resultado.');hablar('Elige el resultado de la multiplicación.','side');return;}
+    ok=Number(selVal)===ex.total;
+  }
+  else if(ex.type==='table_mul'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona un resultado.');hablar('Elige el resultado.','side');return;}
+    ok=Number(selVal)===ex.answer;
+  }
+  else if(ex.type==='distribute'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona una cantidad.');hablar('Elige cuántos objetos hay por grupo.','side');return;}
+    ok=Number(selVal)===ex.perContainer;
+  }
+  else if(ex.type==='mixed'){
+    if(selVal===null){playHint();setFeedback('error','Selecciona un resultado.');hablar('Elige el resultado.','side');return;}
+    ok=Number(selVal)===ex.answer;
+  }
+  else if(ex.type==='classify'){
+    const allPlaced=ex.numbers.every((_,i)=>classifyPos[i]!=='pool');
+    if(!allPlaced){playHint();setFeedback('error','Clasifica todos los números primero.');hablar('Coloca todos los números en alguna zona.','side');return;}
+    ok=ex.numbers.every((n,i)=>classifyPos[i]!=='pool'&&((classifyPos[i]==='decimal')===n.isDecimal));
+    if(!ok)rerenderClassify(ex);
+    else rerenderClassify(ex);
+  }
+  else if(ex.type==='compare_dec'){
+    if(!compareDecState.placed){playHint();setFeedback('error','Selecciona y coloca el número mayor.');hablar('Selecciona el mayor y colócalo en la estrella.','side');return;}
+    ok=compareDecState.placed===ex.greater;
+    const dropEl=document.getElementById('decDrop');
+    if(dropEl)dropEl.classList.add(ok?'correct-zone':'wrong-zone');
+    document.getElementById('cmpA').classList.remove('correct-chip','wrong-chip');
+    document.getElementById('cmpB').classList.remove('correct-chip','wrong-chip');
+    if(ex.greater==='A')document.getElementById('cmpA').classList.add('correct-chip');
+    else document.getElementById('cmpB').classList.add('correct-chip');
+    if(!ok){if(compareDecState.placed==='A')document.getElementById('cmpA').classList.add('wrong-chip');else document.getElementById('cmpB').classList.add('wrong-chip');}
+  }
+  else if(ex.type==='table_dec'){
+    const allOk=ex.blanks.every(i=>tableState.answers[i]!==null)&&(!ex.totalBlank||tableState.answers[-1]!==null);
+    if(!allOk){playHint();setFeedback('error','Completa todos los espacios de la tabla.');hablar('Llena todos los espacios vacíos antes de comprobar.','side');return;}
+    ok=ex.blanks.every(i=>tableState.answers[i]===ex.rows[i][1])&&(!ex.totalBlank||tableState.answers[-1]===ex.total);
+    rerenderTableDec(ex);
+  }
+  else if(ex.type==='chart'){
+    const allPlaced=ex.items.every((_,i)=>chartState.placed[i]!==null);
+    if(!allPlaced){playHint();setFeedback('error','Coloca todas las barras antes de comprobar.');hablar('Coloca todas las barras en la gráfica.','side');return;}
+    ok=ex.items.every((_,i)=>chartState.placed[i]&&chartState.placed[i].id===i);
+    rerenderChart(ex);
+  }
+
+  if(ok){
+    solvedCurrent=true;score++;playOK();
+    const msg=pick(positivos);setFeedback('ok',msg);hablar(msg,'side');
+    lockAllOpts();
+    document.getElementById('scoreCounter').textContent='Puntos: '+score;
+    document.getElementById('progressFill').style.width=((currentEx+1)/TOTAL*100)+'%';
+    document.getElementById('checkBtn').style.display='none';
+    document.getElementById('hintBtn').style.display='none';
+    document.getElementById('nextBtn').style.display='inline-block';
+  }else{
+    failedAny=true;playWrong();
+    const msg=pick(reintentos);setFeedback('error','Respuesta incorrecta. '+msg);hablar(msg,'side');
+  }
+}
+
+function lockAllOpts(){document.querySelectorAll('.card-opt').forEach(el=>el.classList.add('locked'));}
+
+function showHint(){
+  activarGesto();playHint();
+  const ex=gameData[currentEx];
+  const hints=hintLib[ex.hint]||['Lee con calma el ejercicio.'];
+  const msg=pick(hints);
+  setFeedback('info',msg);hablar(msg,'side');
+}
+
+function nextExercise(){
+  activarGesto();
+  if(!solvedCurrent)return;
+  currentEx++;
+  if(currentEx>=TOTAL){showResults();return;}
+  renderExercise();
+  const ex=gameData[currentEx];
+  setTimeout(()=>hablar('¡Siguiente ejercicio! '+pick(hintLib[ex.hint]||['Lee con calma.']),'side'),300);
+}
+
+/* ════ RESULTADOS ════ */
+function showResults(){
+  showScreen('screenResult');
+  const pct=Math.round(score/TOTAL*100);
+  const perfect=score===TOTAL&&!failedAny;
+  document.getElementById('finalScore').textContent=score+' / '+TOTAL;
+  let stars='⭐',msg='',speech='',good=false;
+
+  if(perfect){
+    stars='⭐ ⭐ ⭐';good=true;
+    msg='¡Perfecto! Completaste los 28 ejercicios de todas las unidades sin un solo error. ¡Puedes reclamar tu diploma!';
+    speech='Estoy muy orgulloso de ti. Completaste toda la gran evaluación perfectamente. ¡Eres un campeón!';
+    document.getElementById('certificateBox').style.display='block';
+  }else{
+    document.getElementById('certificateBox').style.display='none';
+    if(score>=25){stars='⭐ ⭐ ⭐';good=true;msg='Excelente resultado, pero para reclamar el diploma debes completar los 28 sin errores. ¡Ya casi!';}
+    else if(score>=18){stars='⭐ ⭐';msg='Buen resultado. Sigue practicando para lograr los 28 aciertos.';}
+    else{stars='⭐';msg='Terminaste la evaluación. Con más práctica mejorarás mucho. ¡No te rindas!';}
+    speech='Bien hecho. Para reclamar el diploma debes completar todos los 28 ejercicios correctamente y sin fallar. ¡Vuelve a intentarlo!';
+  }
+
+  document.getElementById('resultStars').textContent=stars;
+  document.getElementById('resultMessage').textContent=msg;
+  document.getElementById('resultSummary').innerHTML=`<strong>Resumen de tu evaluación</strong><br>
+Puntaje: <strong>${score} de ${TOTAL}</strong> (${pct}%)<br>
+¿Fallaste algún ejercicio durante el proceso?: <strong>${failedAny?'Sí':'No'}</strong><br>
+Acceso al diploma: <strong>${perfect?'✅ Desbloqueado':'❌ Bloqueado'}</strong><br><br>
+<strong>Contenidos evaluados:</strong><br>
+• Unidad 1: Reconocimiento, lectura, valor posicional, comparación, orden (7 ejercicios)<br>
+• Unidad 2: Unir, quitar, operaciones, mercado, resultado (7 ejercicios)<br>
+• Unidad 3: Agrupar, tablas × , repartir, operaciones mixtas (7 ejercicios)<br>
+• Unidad 4: Clasificar decimales, comparar decimales, tablas, gráficas (7 ejercicios)`;
+
+  setTimeout(()=>{playResult(good);hablar(speech,'result');},600);
+}
+
+function claimCertificate(){
+  activarGesto();
+  const name=document.getElementById('studentName').value.trim();
+  if(!name){alert('Escribe tu nombre completo para reclamar el diploma.');hablar('Por favor, escribe tu nombre completo.','result');return;}
+  localStorage.setItem('gauss_nombre_diploma',name);
+  hablar('¡Felicidades, '+name+'! Tu diploma ha sido reclamado.','result');
+  setTimeout(()=>window.location.href='../Diplomas/DiplomaFinal.html',2000);
+}
+</script>
+</body>
+</html>
